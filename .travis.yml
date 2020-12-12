@@ -10,7 +10,6 @@ jobs:
     - stage: test
       script: ./gradlew test
     - stage: deploy
-      if: branch = main
       deploy:
         provider: heroku
         api-key:
