@@ -1,6 +1,5 @@
 package com.team_linne.digimov.integration;
 
-import com.team_linne.digimov.model.Cinema;
 import com.team_linne.digimov.model.Movie;
 import com.team_linne.digimov.repository.MovieRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -184,5 +183,15 @@ public class MovieIntegrationTest {
         //when
         mockMvc.perform(MockMvcRequestBuilders.delete("/movies/" + movie1.getId()))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void should_return_404_not_found_when_delete_movie_given_invalid_movie_id() throws Exception {
+        Movie movie1 = new Movie("movie1",123, new ArrayList<>(),"John","a movie","movie1.jpg","8");
+        movieRepository.save(movie1);
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.delete("/movies/" + "5fc8913234ba53396c26a863"))
+                .andExpect(status().isNotFound());
     }
 }
