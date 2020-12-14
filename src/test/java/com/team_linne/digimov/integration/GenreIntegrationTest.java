@@ -36,5 +36,14 @@ public class GenreIntegrationTest {
                 .andExpect(jsonPath("$[0].name").value("comedy"));
     }
 
+    @Test
+    public void should_return_specific_genre_when_get_genre_given_valid_genre_id() throws Exception {
+        Genre genre = new Genre("comedy");
+        genreRepository.save(genre);
 
+        mockMvc.perform(MockMvcRequestBuilders.get("/genres/" + genre.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isString())
+                .andExpect(jsonPath("$.name").value("comedy"));
+    }
 }

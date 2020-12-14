@@ -29,6 +29,11 @@ public class GenreController {
                 .collect(Collectors.toList());
     }
 
+    @GetMapping("/{id}")
+    public GenreResponse getById(@PathVariable String id) {
+        return genreMapper.toResponse(genreService.getById(id));
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public GenreResponse create(@RequestBody GenreRequest genreRequest) {
