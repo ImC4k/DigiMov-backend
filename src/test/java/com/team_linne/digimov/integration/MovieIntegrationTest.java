@@ -183,6 +183,27 @@ public class MovieIntegrationTest {
     }
 
     @Test
+    public void should_return_400_bad_request_when_update_movie_given_illegal_movie_id_and_movie_update_info() throws Exception {
+        Movie movie1 = new Movie("movie1",123, new ArrayList<>(),"John","a movie","movie1.jpg","8");
+        movieRepository.save(movie1);
+        String movieAsJson = "{\n" +
+                "    \"name\": \"movie1\",\n" +
+                "    \"duration\": \"456\",\n" +
+                "    \"genreIds\": [],\n" +
+                "    \"director\": \"John\",\n" +
+                "    \"description\": \"a movie\",\n" +
+                "    \"imageUrl\": \"movie1.jpg\",\n" +
+                "    \"rating\": \"3\"\n" +
+                "}";
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.put("/movies/" + "123")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(movieAsJson))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void should_delete_movie_when_delete_movie_given_valid_movie_id() throws Exception {
         Movie movie1 = new Movie("movie1",123, new ArrayList<>(),"John","a movie","movie1.jpg","8");
         movieRepository.save(movie1);
