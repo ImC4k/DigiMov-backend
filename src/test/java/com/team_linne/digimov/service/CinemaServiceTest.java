@@ -16,7 +16,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class CinemaServiceTest {
@@ -126,5 +126,19 @@ public class CinemaServiceTest {
         assertThrows(CinemaNotFoundException.class, () -> {
             cinemaService.update("999", cinema2);
         }, "Cinema not found");
+    }
+
+    @Test
+    void should_delete_cinema_when_delete_cinema_given_valid_cinema_id() {
+        //given
+        Cinema cinema = new Cinema("cinema 1", "hong kong", "cinema1.jpg", "8:00-23:00","12345678");
+        cinema.setId("1");
+        when(cinemaRepository.findById("1")).thenReturn(Optional.of(cinema));
+
+        //when
+        cinemaService.delete("1");
+
+        //then
+        verify(cinemaRepository, times(1)).deleteById("1");
     }
 }

@@ -28,6 +28,11 @@ public class CinemaService {
     public Cinema update(String id, Cinema cinemaUpdate) {
         Cinema cinema = this.getById(id);
         cinemaUpdate.setId(cinema.getId());
-        return cinemaRepository.save(cinemaUpdate);
+        return this.create(cinemaUpdate);
+    }
+
+    public void delete(String id) {
+        Cinema cinema = this.getById(id);
+        cinemaRepository.deleteById(cinema.getId());
     }
 }
