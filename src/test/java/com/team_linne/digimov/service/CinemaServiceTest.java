@@ -1,5 +1,6 @@
 package com.team_linne.digimov.service;
 
+import com.team_linne.digimov.exception.CinemaNotFoundException;
 import com.team_linne.digimov.model.Cinema;
 import com.team_linne.digimov.repository.CinemaRepository;
 import org.junit.jupiter.api.Test;
@@ -12,8 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -74,15 +74,13 @@ public class CinemaServiceTest {
     }
 
     @Test
-    void should_return_null_when_get_by_id_given_list_of_cinemas_and_invalid_cinema_id() {
+    void should_throw_cinema_not_found_exception_when_get_by_id_given_list_of_cinemas_and_invalid_cinema_id() {
         //given
-        when(cinemaRepository.findById("3")).thenReturn(Optional.empty());
-
         //when
-        final Cinema actual = cinemaService.getById("3");
-
         //then
-        assertNull(actual);
+        assertThrows(CinemaNotFoundException.class, () -> {
+            cinemaService.getById("999");
+        }, "Cinema not found");
     }
 
     @Test
@@ -97,4 +95,17 @@ public class CinemaServiceTest {
         //then
         assertEquals(cinema, actual);
     }
+
+//    @Test
+//    void should_return_updated_cinema_when_update_cinema_given_cinema() {
+//        //given
+//        Cinema cinema = new Cinema("cinema 1", "hong kong", "cinema1.jpg", "8:00-23:00","12345678");
+//        when(cinemaRepository.save(cinema)).thenReturn(cinema);
+//
+//        //when
+//        final Cinema actual = cinemaService.create(cinema);
+//
+//        //then
+//        assertEquals(cinema, actual);
+//    }
 }
