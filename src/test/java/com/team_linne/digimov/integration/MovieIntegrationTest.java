@@ -125,4 +125,35 @@ public class MovieIntegrationTest {
                 .andExpect(jsonPath("$.imageUrl").isEmpty())
                 .andExpect(jsonPath("$.rating").value("8"));
     }
+
+    @Test
+    public void should_return_updated_movie_when_update_movie_given_valid_movie_id_and_movie_update_info() throws Exception {
+        Movie movie1 = new Movie("movie1",123, new ArrayList<>(),"John","a movie","movie1.jpg","8");
+        movieRepository.save(movie1);
+        String movieAsJson = "{\n" +
+                "    \"name\": \"movie1\",\n" +
+                "    \"duration\": \"456\",\n" +
+                "    \"genreIds\": [],\n" +
+                "    \"director\": \"John\",\n" +
+                "    \"description\": \"a movie\",\n" +
+                "    \"imageUrl\": \"movie1.jpg\",\n" +
+                "    \"rating\": \"3\"\n" +
+                "}";
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.put("/movies/" + movie1.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(movieAsJson))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isString())
+                .andExpect(jsonPath("$.name").value("movie1"))
+                .andExpect(jsonPath("$.duration").value(456))
+                .andExpect(jsonPath("$.genres").isEmpty())
+                .andExpect(jsonPath("$.director").value("John"))
+                .andExpect(jsonPath("$.description").value("a movie"))
+                .andExpect(jsonPath("$.imageUrl").value("movie1.jpg"))
+                .andExpect(jsonPath("$.rating").value("3"));
+    }
+
+
 }
