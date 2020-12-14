@@ -101,4 +101,14 @@ public class GenreIntegrationTest {
                 .content(genreAsJson))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    public void should_delete_genre_when_delete_genre_given_valid_genre_id() throws Exception {
+        Genre genre = new Genre("comedy");
+        genreRepository.save(genre);
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.delete("/genres/" + genre.getId()))
+                .andExpect(status().isNoContent());
+    }
 }
