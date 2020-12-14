@@ -110,6 +110,21 @@ public class GenreIntegrationTest {
     }
 
     @Test
+    public void should_return_400_bad_request_when_update_genre_given_illegal_genre_id_and_genre_update_info() throws Exception {
+        Genre genre = new Genre("comedy");
+        genreRepository.save(genre);
+        String genreAsJson = "{\n" +
+                "    \"name\": \"documentary\"\n" +
+                "}";
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.put("/genres/" + "5fc8913234ba53396c26a863")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(genreAsJson))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     public void should_delete_genre_when_delete_genre_given_valid_genre_id() throws Exception {
         Genre genre = new Genre("comedy");
         genreRepository.save(genre);
