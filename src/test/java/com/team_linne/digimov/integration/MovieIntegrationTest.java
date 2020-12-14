@@ -1,5 +1,6 @@
 package com.team_linne.digimov.integration;
 
+import com.team_linne.digimov.model.Cinema;
 import com.team_linne.digimov.model.Movie;
 import com.team_linne.digimov.repository.MovieRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -45,5 +46,23 @@ public class MovieIntegrationTest {
                 .andExpect(jsonPath("$[0].description").value("a movie"))
                 .andExpect(jsonPath("$[0].imageUrl").value("movie1.jpg"))
                 .andExpect(jsonPath("$[0].rating").value("8"));
+    }
+
+    @Test
+    public void should_return_specific_movie_when_get_movie_given_valid_movie_id() throws Exception {
+        Movie movie1 = new Movie("movie1",123, new ArrayList<>(),"John","a movie","movie1.jpg","8");
+        movieRepository.save(movie1);
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.get("/movies/" + movie1.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isString())
+                .andExpect(jsonPath("$.name").value("movie1"))
+                .andExpect(jsonPath("$.duration").value(123))
+                .andExpect(jsonPath("$.genres").isEmpty())
+                .andExpect(jsonPath("$.director").value("John"))
+                .andExpect(jsonPath("$.description").value("a movie"))
+                .andExpect(jsonPath("$.imageUrl").value("movie1.jpg"))
+                .andExpect(jsonPath("$.rating").value("8"));
     }
 }
