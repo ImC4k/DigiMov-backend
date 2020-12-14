@@ -111,4 +111,11 @@ public class GenreIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.delete("/genres/" + genre.getId()))
                 .andExpect(status().isNoContent());
     }
+
+    @Test
+    public void should_return_404_not_found_when_delete_genre_given_invalid_genre_id() throws Exception {
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.delete("/genres/" + "5fc8913234ba53396c26a863"))
+                .andExpect(status().isNotFound());
+    }
 }
