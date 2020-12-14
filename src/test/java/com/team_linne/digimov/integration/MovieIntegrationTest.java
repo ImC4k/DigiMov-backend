@@ -74,6 +74,13 @@ public class MovieIntegrationTest {
     }
 
     @Test
+    public void should_return_400_bad_request_when_get_movie_given_illegal_movie_id() throws Exception {
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.get("/movies/" + "123"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void should_return_created_movie_when_create_movie_given_complete_new_movie_info() throws Exception {
         String movieAsJson = "{\n" +
                 "    \"name\": \"movie1\",\n" +
