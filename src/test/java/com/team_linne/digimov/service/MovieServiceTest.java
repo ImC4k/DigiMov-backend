@@ -1,12 +1,8 @@
 package com.team_linne.digimov.service;
 
-import com.team_linne.digimov.exception.CinemaNotFoundException;
 import com.team_linne.digimov.exception.MovieNotFoundException;
-import com.team_linne.digimov.model.Cinema;
 import com.team_linne.digimov.model.Movie;
-import com.team_linne.digimov.repository.CinemaRepository;
 import com.team_linne.digimov.repository.MovieRepository;
-import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

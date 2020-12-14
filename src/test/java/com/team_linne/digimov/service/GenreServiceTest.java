@@ -1,7 +1,6 @@
 package com.team_linne.digimov.service;
 
 import com.team_linne.digimov.exception.GenreNotFoundException;
-
 import com.team_linne.digimov.model.Genre;
 import com.team_linne.digimov.model.Movie;
 import com.team_linne.digimov.repository.GenreRepository;
@@ -18,7 +17,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class GenreServiceTest {
@@ -125,6 +124,31 @@ public class GenreServiceTest {
         //then
         assertThrows(GenreNotFoundException.class, () -> {
             genreService.update("999", genre);
+        }, "Genre not found");
+    }
+
+    @Test
+    void should_delete_genre_when_delete_genre_given_valid_genre_id() {
+        //given
+        Genre genre = new Genre("Romance");
+        genre.setId("1");
+
+        when(genreRepository.findById("1")).thenReturn(Optional.of(genre));
+
+        //when
+        genreService.delete("1");
+
+        //then
+        verify(genreRepository, times(1)).deleteById("1");
+    }
+
+    @Test
+    void should_throw_genre_not_found_exception_when_delete_genre_given_invalid_genre_id() {
+        //given
+        //when
+        //then
+        assertThrows(GenreNotFoundException.class, () -> {
+            genreService.delete("999");
         }, "Genre not found");
     }
 

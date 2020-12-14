@@ -31,4 +31,9 @@ public class GenreService {
         genreUpdate.setId(id);
         return this.create(genreUpdate);
     }
+
+    public void delete(String id) {
+        Genre genre = this.getById(id);
+        genreRepository.deleteById(id);
+    }
 }
