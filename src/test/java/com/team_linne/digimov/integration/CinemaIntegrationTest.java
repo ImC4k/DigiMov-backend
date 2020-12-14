@@ -68,6 +68,13 @@ public class CinemaIntegrationTest {
     }
 
     @Test
+    public void should_return_400_bad_request_when_get_cinema_given_illegal_cinema_id() throws Exception {
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.get("/cinemas/" + "123"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void should_return_created_cinema_when_create_cinema_given_complete_new_cinema_info() throws Exception {
         String cinemaAsJson = "{\n" +
                 "    \"name\": \"cinema 1\",\n" +
@@ -156,6 +163,25 @@ public class CinemaIntegrationTest {
     }
 
     @Test
+    public void should_return_400_bad_request_when_update_cinema_given_illegal_cinema_id_and_cinema_update_info() throws Exception {
+        Cinema cinema1 = new Cinema("cinema 1", "hong kong", "cinema1.jpg", "8:00-23:00", "12345678");
+        cinemaRepository.save(cinema1);
+        String cinemaAsJson = "{\n" +
+                "    \"name\": \"cinema 1 updated\",\n" +
+                "    \"address\": \"hong kong island\",\n" +
+                "    \"openingHours\": \"8:00-23:00\",\n" +
+                "    \"hotline\": \"12345678\",\n" +
+                "    \"imageUrl\": \"cinema1.jpg\"\n" +
+                "}";
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.put("/cinemas/" + "123")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cinemaAsJson))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void should_delete_cinema_when_delete_cinema_given_valid_cinema_id() throws Exception {
         Cinema cinema1 = new Cinema("cinema 1", "hong kong", "cinema1.jpg", "8:00-23:00", "12345678");
         cinemaRepository.save(cinema1);
@@ -170,5 +196,12 @@ public class CinemaIntegrationTest {
         //when
         mockMvc.perform(MockMvcRequestBuilders.delete("/cinemas/" + "5fc8913234ba53396c26a863"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void should_return_400_bad_request_when_delete_cinema_given_illegal_cinema_id() throws Exception {
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.delete("/cinemas/" + "123"))
+                .andExpect(status().isBadRequest());
     }
 }

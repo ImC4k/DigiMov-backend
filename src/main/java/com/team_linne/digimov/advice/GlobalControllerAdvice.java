@@ -11,20 +11,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalControllerAdvice {
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler({CinemaNotFoundException.class})
-    public ErrorResponse handleCinemaNotFound(CinemaNotFoundException exception){
+    @ExceptionHandler({CinemaNotFoundException.class, MovieNotFoundException.class, GenreNotFoundException.class})
+    public ErrorResponse handleModelNotFound(Exception exception){
         return new ErrorResponse(exception.getMessage(), HttpStatus.NOT_FOUND.name());
     }
 
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler({MovieNotFoundException.class})
-    public ErrorResponse handleMovieNotFound(MovieNotFoundException exception){
-        return new ErrorResponse(exception.getMessage(), HttpStatus.NOT_FOUND.name());
-    }
-
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler({GenreNotFoundException.class})
-    public ErrorResponse handleGenreNotFound(GenreNotFoundException exception){
-        return new ErrorResponse(exception.getMessage(), HttpStatus.NOT_FOUND.name());
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ErrorResponse handleIllegalArgument(IllegalArgumentException exception) {
+        return new ErrorResponse(exception.getMessage(), HttpStatus.BAD_REQUEST.name());
     }
 }
