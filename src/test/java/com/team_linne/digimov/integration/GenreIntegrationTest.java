@@ -69,4 +69,21 @@ public class GenreIntegrationTest {
                 .andExpect(jsonPath("$.id").isString())
                 .andExpect(jsonPath("$.name").value("comedy"));
     }
+
+    @Test
+    public void should_return_updated_genre_when_update_genre_given_valid_genre_id_and_genre_update_info() throws Exception {
+        Genre genre = new Genre("comedy");
+        genreRepository.save(genre);
+        String genreAsJson = "{\n" +
+                "    \"name\": \"documentary\"\n" +
+                "}";
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.put("/genres/" + genre.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(genreAsJson))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isString())
+                .andExpect(jsonPath("$.name").value("documentary"));
+    }
 }
