@@ -1,9 +1,7 @@
 package com.team_linne.digimov.integration;
 
-import com.jayway.jsonpath.JsonPath;
 import com.team_linne.digimov.model.Cinema;
 import com.team_linne.digimov.repository.CinemaRepository;
-import com.team_linne.digimov.service.CinemaService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +29,7 @@ public class CinemaIntegrationTest {
 
     @Test
     public void should_return_all_cinemas_when_getAll_given_cinemas() throws Exception {
-        Cinema cinema1 = new Cinema("cinema 1", "hong kong", "cinema1.jpg", "8:00-23:00","12345678");
+        Cinema cinema1 = new Cinema("cinema 1", "hong kong", "cinema1.jpg", "8:00-23:00", "12345678");
         cinemaRepository.save(cinema1);
 
         //when
@@ -43,5 +41,28 @@ public class CinemaIntegrationTest {
                 .andExpect(jsonPath("$[0].imageUrl").value("cinema1.jpg"))
                 .andExpect(jsonPath("$[0].openingHours").value("8:00-23:00"))
                 .andExpect(jsonPath("$[0].hotline").value("12345678"));
+    }
+
+    @Test
+    public void should_return_specific_cinema_when_getAById_given_valid_cinema_id() throws Exception {
+        Cinema cinema1 = new Cinema("cinema 1", "hong kong", "cinema1.jpg", "8:00-23:00", "12345678");
+        cinemaRepository.save(cinema1);
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.get("/cinemas/" + cinema1.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isString())
+                .andExpect(jsonPath("$.name").value("cinema 1"))
+                .andExpect(jsonPath("$.address").value("hong kong"))
+                .andExpect(jsonPath("$.imageUrl").value("cinema1.jpg"))
+                .andExpect(jsonPath("$.openingHours").value("8:00-23:00"))
+                .andExpect(jsonPath("$.hotline").value("12345678"));
+    }
+
+    @Test
+    public void should_return_404_NotFound_when_getAll_given_invalid_cinema_id() throws Exception {
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.get("/cinemas/" + "5fc8913234ba53396c26a863"))
+                .andExpect(status().isNotFound());
     }
 }
