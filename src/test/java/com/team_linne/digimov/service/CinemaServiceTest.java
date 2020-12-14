@@ -76,13 +76,6 @@ public class CinemaServiceTest {
     @Test
     void should_return_null_when_get_by_id_given_list_of_cinemas_and_invalid_cinema_id() {
         //given
-        Cinema cinema1 = new Cinema("cinema 1", "hong kong", "cinema1.jpg", "8:00-23:00","12345678");
-        Cinema cinema2 = new Cinema("cinema 2", "hong kong", "cinema2.jpg", "8:00-23:00","12345678");
-        cinema1.setId("1");
-        cinema2.setId("2");
-        List<Cinema> cinemaList = new ArrayList<>();
-        cinemaList.add(cinema1);
-        cinemaList.add(cinema2);
         when(cinemaRepository.findById("3")).thenReturn(Optional.empty());
 
         //when
