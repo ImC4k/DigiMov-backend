@@ -1,9 +1,7 @@
 package com.team_linne.digimov.service;
 
-import com.sun.tools.javac.jvm.Gen;
-import com.team_linne.digimov.exception.CinemaNotFoundException;
 import com.team_linne.digimov.exception.GenreNotFoundException;
-import com.team_linne.digimov.model.Cinema;
+
 import com.team_linne.digimov.model.Genre;
 import com.team_linne.digimov.model.Movie;
 import com.team_linne.digimov.repository.GenreRepository;
@@ -19,6 +17,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -98,6 +97,35 @@ public class GenreServiceTest {
 
         //then
         assertEquals(genre1, actual);
+    }
+
+    @Test
+    void should_return_updated_genre_when_update_genre_given_genre_id_and_updated_genre_info() {
+        //given
+        Genre genre1 = new Genre("Romance");
+        Genre genre2 = new Genre("Thriller");
+        genre1.setId("1");
+        when(genreRepository.findById("1")).thenReturn(Optional.of(genre1));
+        when(genreRepository.save(any(Genre.class))).thenReturn(genre2);
+
+        //when
+        final Genre actual = genreService.update("1", genre2);
+
+        //then
+        assertEquals(genre2, actual);
+    }
+
+    @Test
+    void should_throw_genre_not_found_exception_when_update_genre_given_invalid_genre_id_and_updated_genre_info() {
+        //given
+        Genre genre = new Genre("Romance");
+        genre.setId("1");
+
+        //when
+        //then
+        assertThrows(GenreNotFoundException.class, () -> {
+            genreService.update("999", genre);
+        }, "Genre not found");
     }
 
 }
