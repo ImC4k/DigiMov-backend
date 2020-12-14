@@ -56,6 +56,13 @@ public class GenreIntegrationTest {
     }
 
     @Test
+    public void should_return_400_bad_request_when_get_genre_given_illegal_genre_id() throws Exception {
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.get("/genres/" + "123"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void should_return_created_genre_when_create_genre_given_complete_new_genre_info() throws Exception {
         String genreAsJson = "{\n" +
                 "    \"name\": \"comedy\"\n" +
