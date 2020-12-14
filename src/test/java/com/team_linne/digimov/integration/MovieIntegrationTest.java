@@ -222,4 +222,14 @@ public class MovieIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.delete("/movies/" + "5fc8913234ba53396c26a863"))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    public void should_return_400_bad_request_when_delete_movie_given_illegal_movie_id() throws Exception {
+        Movie movie1 = new Movie("movie1",123, new ArrayList<>(),"John","a movie","movie1.jpg","8");
+        movieRepository.save(movie1);
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.delete("/movies/" + "123"))
+                .andExpect(status().isBadRequest());
+    }
 }
