@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
@@ -96,16 +97,19 @@ public class CinemaServiceTest {
         assertEquals(cinema, actual);
     }
 
-//    @Test
-//    void should_return_updated_cinema_when_update_cinema_given_cinema() {
-//        //given
-//        Cinema cinema = new Cinema("cinema 1", "hong kong", "cinema1.jpg", "8:00-23:00","12345678");
-//        when(cinemaRepository.save(cinema)).thenReturn(cinema);
-//
-//        //when
-//        final Cinema actual = cinemaService.create(cinema);
-//
-//        //then
-//        assertEquals(cinema, actual);
-//    }
+    @Test
+    void should_return_updated_cinema_when_update_cinema_given_cinema_id_and_updated_cinema_info() {
+        //given
+        Cinema cinema = new Cinema("cinema 1", "hong kong", "cinema1.jpg", "8:00-23:00","12345678");
+        Cinema cinema2 = new Cinema("cinema 2", "hong kong", "cinema2.jpg", "8:00-23:00","12345678");
+        cinema.setId("1");
+        when(cinemaRepository.findById("1")).thenReturn(Optional.of(cinema));
+        when(cinemaRepository.save(any(Cinema.class))).thenReturn(cinema2);
+
+        //when
+        final Cinema actual = cinemaService.update("1", cinema2);
+
+        //then
+        assertEquals(cinema2, actual);
+    }
 }

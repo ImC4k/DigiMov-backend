@@ -24,4 +24,10 @@ public class CinemaService {
     public Cinema create(Cinema cinema) {
         return cinemaRepository.save(cinema);
     }
+
+    public Cinema update(String id, Cinema cinemaUpdate) {
+        Cinema cinema = this.getById(id);
+        cinemaUpdate.setId(cinema.getId());
+        return cinemaRepository.save(cinemaUpdate);
+    }
 }
