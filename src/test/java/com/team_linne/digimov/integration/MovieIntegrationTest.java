@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -71,5 +72,32 @@ public class MovieIntegrationTest {
         //when
         mockMvc.perform(MockMvcRequestBuilders.get("/movies/" + "5fc8913234ba53396c26a863"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void should_return_created_movie_when_create_movie_given_complete_new_movie_info() throws Exception {
+        String movieAsJson = "{\n" +
+                "    \"name\": \"movie1\",\n" +
+                "    \"duration\": \"123\",\n" +
+                "    \"genreIds\": [],\n" +
+                "    \"director\": \"John\",\n" +
+                "    \"description\": \"a movie\",\n" +
+                "    \"imageUrl\": \"movie1.jpg\",\n" +
+                "    \"rating\": \"8\"\n" +
+                "}";
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.post("/movies")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(movieAsJson))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").isString())
+                .andExpect(jsonPath("$.name").value("movie1"))
+                .andExpect(jsonPath("$.duration").value(123))
+                .andExpect(jsonPath("$.genres").isEmpty())
+                .andExpect(jsonPath("$.director").value("John"))
+                .andExpect(jsonPath("$.description").value("a movie"))
+                .andExpect(jsonPath("$.imageUrl").value("movie1.jpg"))
+                .andExpect(jsonPath("$.rating").value("8"));
     }
 }
