@@ -40,7 +40,6 @@ public class CinemaController {
     }
 
     @PutMapping("/{id}")
-    @ResponseStatus(HttpStatus.CREATED)
     public CinemaResponse update(@PathVariable String id, @RequestBody CinemaRequest cinemaUpdate) {
         Cinema cinema = cinemaService.update(id, cinemaMapper.toEntity(cinemaUpdate));
         return cinemaMapper.toResponse(cinema);
