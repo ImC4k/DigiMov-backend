@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/cinemas")
 public class CinemaController {
@@ -21,10 +22,11 @@ public class CinemaController {
     @Autowired
     private CinemaMapper cinemaMapper;
 
-
     @GetMapping
     public List<CinemaResponse> getAll() {
-        return cinemaService.getAll().stream().map(cinemaMapper::toResponse).collect(Collectors.toList());
+        return cinemaService.getAll().stream()
+                .map(cinemaMapper::toResponse)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")

@@ -91,7 +91,7 @@ public class CinemaIntegrationTest {
     }
 
     @Test
-    public void should_return_created_imcompleted_cinema_when_create_cinema_given_incomplete_new_cinema_info() throws Exception {
+    public void should_return_created_incompleted_cinema_when_create_cinema_given_incomplete_new_cinema_info() throws Exception {
         String cinemaAsJson = "{\n" +
                 "    \"name\": \"cinema 1\",\n" +
                 "    \"address\": \"hong kong\",\n" +
