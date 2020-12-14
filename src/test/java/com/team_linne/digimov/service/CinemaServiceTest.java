@@ -117,9 +117,8 @@ public class CinemaServiceTest {
     @Test
     void should_throw_cinema_not_found_exception_when_update_cinema_given_invalid_cinema_id_and_updated_cinema_info() {
         //given
-        Cinema cinema = new Cinema("cinema 1", "hong kong", "cinema1.jpg", "8:00-23:00","12345678");
         Cinema cinema2 = new Cinema("cinema 2", "hong kong", "cinema2.jpg", "8:00-23:00","12345678");
-        cinema.setId("1");
+        cinema2.setId("1");
 
         //when
         //then

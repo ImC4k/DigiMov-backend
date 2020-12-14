@@ -19,6 +19,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -86,4 +87,47 @@ public class MovieServiceTest {
             movieService.getById("999");
         }, "Movie not found");
     }
+
+    @Test
+    void should_return_created_movie_when_create_movie_given_new_movie() {
+        //given
+        Movie movie = new Movie("movie",123, new ArrayList<>(),"John","a movie","movie.jpg","8");
+        when(movieRepository.save(movie)).thenReturn(movie);
+
+        //when
+        final Movie actual = movieService.create(movie);
+
+        //then
+        assertEquals(movie, actual);
+    }
+
+    @Test
+    void should_return_updated_movie_when_update_movie_given_movie_id_and_updated_movie_info() {
+        //given
+        Movie movie1 = new Movie("movie1",123, new ArrayList<>(),"John","a movie","movie1.jpg","8");
+        Movie movie2 = new Movie("movie2",156, new ArrayList<>(),"James","a good movie","movie2.jpg","9");
+        movie1.setId("1");
+        when(movieRepository.findById("1")).thenReturn(Optional.of(movie1));
+        when(movieRepository.save(any(Movie.class))).thenReturn(movie2);
+
+        //when
+        final Movie actual = movieService.update("1", movie2);
+
+        //then
+        assertEquals(movie2, actual);
+    }
+
+    @Test
+    void should_throw_movie_not_found_exception_when_update_movie_given_invalid_movie_id_and_updated_movie_info() {
+        //given
+        Movie movie1 = new Movie("movie1",123, new ArrayList<>(),"John","a movie","movie1.jpg","8");
+        movie1.setId("1");
+
+        //when
+        //then
+        assertThrows(MovieNotFoundException.class, () -> {
+            movieService.update("999", movie1);
+        }, "Movie not found");
+    }
+
 }

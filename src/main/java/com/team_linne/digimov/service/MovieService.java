@@ -18,4 +18,14 @@ public class MovieService {
     public Movie getById(String id) {
         return movieRepository.findById(id).orElseThrow(MovieNotFoundException::new);
     }
+
+    public Movie create(Movie movie) {
+        return movieRepository.save(movie);
+    }
+
+    public Movie update(String id, Movie movieUpdate) {
+        Movie movie = this.getById(id);
+        movieUpdate.setId(movie.getId());
+        return this.create(movieUpdate);
+    }
 }
