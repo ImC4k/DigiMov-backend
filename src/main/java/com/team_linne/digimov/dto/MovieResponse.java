@@ -1,31 +1,26 @@
-package com.team_linne.digimov.model;
-
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.FieldType;
-import org.springframework.data.mongodb.core.mapping.MongoId;
+package com.team_linne.digimov.dto;
 
 import java.util.List;
 
-@Document
-public class Movie {
-    @MongoId(FieldType.OBJECT_ID)
+public class MovieResponse {
     private String id;
     private String name;
     private Integer duration;
-    private List<String> genreIds;
+    private List<GenreResponse> genres;
     private String director;
     private String description;
     private String imageUrl;
     private String rating;
 
-    public Movie() {
+    public MovieResponse() {
 
     }
 
-    public Movie(String name, Integer duration, List<String> genreIds, String director, String description, String imageUrl, String rating) {
+    public MovieResponse(String id, String name, Integer duration, List<GenreResponse> genres, String director, String description, String imageUrl, String rating) {
+        this.id = id;
         this.name = name;
         this.duration = duration;
-        this.genreIds = genreIds;
+        this.genres = genres;
         this.director = director;
         this.description = description;
         this.imageUrl = imageUrl;
@@ -56,12 +51,12 @@ public class Movie {
         this.duration = duration;
     }
 
-    public List<String> getGenreIds() {
-        return genreIds;
+    public List<GenreResponse> getGenres() {
+        return genres;
     }
 
-    public void setGenreIds(List<String> genreIds) {
-        this.genreIds = genreIds;
+    public void setGenres(List<GenreResponse> genres) {
+        this.genres = genres;
     }
 
     public String getDirector() {
