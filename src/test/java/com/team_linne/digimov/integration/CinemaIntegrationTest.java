@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -64,5 +65,28 @@ public class CinemaIntegrationTest {
         //when
         mockMvc.perform(MockMvcRequestBuilders.get("/cinemas/" + "5fc8913234ba53396c26a863"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void should_return_created_cinema_when_create_given_new_cinema() throws Exception {
+        String cinemaAsJson = "{\n" +
+                "    \"name\": \"cinema 1\",\n" +
+                "    \"address\": \"hong kong\",\n" +
+                "    \"openingHours\": \"8:00-23:00\",\n" +
+                "    \"hotline\": \"12345678\",\n" +
+                "    \"imageUrl\": \"cinema1.jpg\"\n" +
+                "}";
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.post("/cinemas")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cinemaAsJson))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").isString())
+                .andExpect(jsonPath("$.name").value("cinema 1"))
+                .andExpect(jsonPath("$.address").value("hong kong"))
+                .andExpect(jsonPath("$.imageUrl").value("cinema1.jpg"))
+                .andExpect(jsonPath("$.openingHours").value("8:00-23:00"))
+                .andExpect(jsonPath("$.hotline").value("12345678"));
     }
 }
