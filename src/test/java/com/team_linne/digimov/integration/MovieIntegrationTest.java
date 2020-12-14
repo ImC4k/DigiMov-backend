@@ -100,4 +100,29 @@ public class MovieIntegrationTest {
                 .andExpect(jsonPath("$.imageUrl").value("movie1.jpg"))
                 .andExpect(jsonPath("$.rating").value("8"));
     }
+
+    @Test
+    public void should_return_created_incompleted_movie_when_create_movie_given_incomplete_new_movie_info() throws Exception {
+        String movieAsJson = "{\n" +
+                "    \"name\": \"movie1\",\n" +
+                "    \"duration\": \"123\",\n" +
+                "    \"genreIds\": [],\n" +
+                "    \"director\": \"John\",\n" +
+                "    \"rating\": \"8\"\n" +
+                "}";
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.post("/movies")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(movieAsJson))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").isString())
+                .andExpect(jsonPath("$.name").value("movie1"))
+                .andExpect(jsonPath("$.duration").value(123))
+                .andExpect(jsonPath("$.genres").isEmpty())
+                .andExpect(jsonPath("$.director").value("John"))
+                .andExpect(jsonPath("$.description").isEmpty())
+                .andExpect(jsonPath("$.imageUrl").isEmpty())
+                .andExpect(jsonPath("$.rating").value("8"));
+    }
 }
