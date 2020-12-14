@@ -86,4 +86,19 @@ public class GenreIntegrationTest {
                 .andExpect(jsonPath("$.id").isString())
                 .andExpect(jsonPath("$.name").value("documentary"));
     }
+
+    @Test
+    public void should_return_404_not_found_when_update_genre_given_invalid_genre_id_and_genre_update_info() throws Exception {
+        Genre genre = new Genre("comedy");
+        genreRepository.save(genre);
+        String genreAsJson = "{\n" +
+                "    \"name\": \"documentary\"\n" +
+                "}";
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.put("/genres/" + "5fc8913234ba53396c26a863")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(genreAsJson))
+                .andExpect(status().isNotFound());
+    }
 }
