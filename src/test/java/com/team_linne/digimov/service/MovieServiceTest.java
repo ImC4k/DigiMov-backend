@@ -20,7 +20,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class MovieServiceTest {
@@ -127,6 +127,30 @@ public class MovieServiceTest {
         //then
         assertThrows(MovieNotFoundException.class, () -> {
             movieService.update("999", movie1);
+        }, "Movie not found");
+    }
+
+    @Test
+    void should_delete_movie_when_delete_movie_given_valid_movie_id() {
+        //given
+        Movie movie1 = new Movie("movie1",123, new ArrayList<>(),"John","a movie","movie1.jpg","8");
+        movie1.setId("1");
+        when(movieRepository.findById("1")).thenReturn(Optional.of(movie1));
+
+        //when
+        movieService.delete("1");
+
+        //then
+        verify(movieRepository, times(1)).deleteById("1");
+    }
+
+    @Test
+    void should_throw_movie_not_found_exception_when_delete_movie_given_invalid_movie_id() {
+        //given
+        //when
+        //then
+        assertThrows(MovieNotFoundException.class, () -> {
+            movieService.delete("999");
         }, "Movie not found");
     }
 

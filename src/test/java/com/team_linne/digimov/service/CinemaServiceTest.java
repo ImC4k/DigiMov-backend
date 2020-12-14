@@ -140,4 +140,14 @@ public class CinemaServiceTest {
         //then
         verify(cinemaRepository, times(1)).deleteById("1");
     }
+
+    @Test
+    void should_throw_cinema_not_found_exception_when_delete_cinema_given_invalid_cinema_id() {
+        //given
+        //when
+        //then
+        assertThrows(CinemaNotFoundException.class, () -> {
+            cinemaService.delete("999");
+        }, "Cinema not found");
+    }
 }

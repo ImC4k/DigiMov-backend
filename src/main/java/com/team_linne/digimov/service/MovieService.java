@@ -28,4 +28,9 @@ public class MovieService {
         movieUpdate.setId(movie.getId());
         return this.create(movieUpdate);
     }
+
+    public void delete(String id) {
+        Movie movie = this.getById(id);
+        movieRepository.deleteById(movie.getId());
+    }
 }
