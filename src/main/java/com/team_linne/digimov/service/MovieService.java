@@ -1,5 +1,6 @@
 package com.team_linne.digimov.service;
 
+import com.team_linne.digimov.exception.MovieNotFoundException;
 import com.team_linne.digimov.model.Movie;
 import com.team_linne.digimov.repository.MovieRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,5 +13,9 @@ public class MovieService {
 
     public List<Movie> getAll() {
         return movieRepository.findAll();
+    }
+
+    public Movie getById(String id) {
+        return movieRepository.findById(id).orElseThrow(MovieNotFoundException::new);
     }
 }
