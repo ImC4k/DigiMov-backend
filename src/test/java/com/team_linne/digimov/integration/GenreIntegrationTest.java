@@ -46,4 +46,11 @@ public class GenreIntegrationTest {
                 .andExpect(jsonPath("$.id").isString())
                 .andExpect(jsonPath("$.name").value("comedy"));
     }
+
+    @Test
+    public void should_return_404NotFound_when_get_genre_given_invalid_genre_id() throws Exception {
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.get("/cinemas/" + "5fc8913234ba53396c26a863"))
+                .andExpect(status().isNotFound());
+    }
 }
