@@ -11,11 +11,15 @@ public class Cinema {
     private String name;
     private String address;
     private String imageUrl;
+    private String openingHours;
+    private String hotline;
 
-    public Cinema(String name, String address, String imageUrl) {
+    public Cinema(String name, String address, String imageUrl, String openingHours, String hotline) {
         this.name = name;
         this.address = address;
         this.imageUrl = imageUrl;
+        this.openingHours = openingHours;
+        this.hotline = hotline;
     }
 
     public Cinema() {
@@ -52,5 +56,21 @@ public class Cinema {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getOpeningHours() {
+        return openingHours;
+    }
+
+    public void setOpeningHours(String openingHours) {
+        this.openingHours = openingHours;
+    }
+
+    public String getHotline() {
+        return hotline;
+    }
+
+    public void setHotline(String hotline) {
+        this.hotline = hotline;
     }
 }

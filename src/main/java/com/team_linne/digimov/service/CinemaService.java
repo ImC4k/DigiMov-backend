@@ -15,4 +15,8 @@ public class CinemaService {
     public List<Cinema> getAll() {
         return cinemaRepository.findAll();
     }
+
+    public Cinema getById(String id) {
+        return cinemaRepository.findById(id).orElse(null);
+    }
 }
