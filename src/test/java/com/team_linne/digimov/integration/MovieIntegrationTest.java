@@ -176,5 +176,13 @@ public class MovieIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    public void should_delete_movie_when_delete_movie_given_valid_movie_id() throws Exception {
+        Movie movie1 = new Movie("movie1",123, new ArrayList<>(),"John","a movie","movie1.jpg","8");
+        movieRepository.save(movie1);
 
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.delete("/movies/" + movie1.getId()))
+                .andExpect(status().isNoContent());
+    }
 }
