@@ -84,4 +84,17 @@ public class CinemaServiceTest {
         //then
         assertNull(actual);
     }
+
+    @Test
+    void should_return_created_cinema_when_create_cinema_given_new_cinema() {
+        //given
+        Cinema cinema = new Cinema("cinema 1", "hong kong", "cinema1.jpg", "8:00-23:00","12345678");
+        when(cinemaRepository.save(cinema)).thenReturn(cinema);
+
+        //when
+        final Cinema actual = cinemaService.create(cinema);
+
+        //then
+        assertEquals(cinema, actual);
+    }
 }

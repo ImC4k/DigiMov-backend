@@ -19,4 +19,8 @@ public class CinemaService {
     public Cinema getById(String id) {
         return cinemaRepository.findById(id).orElse(null);
     }
+
+    public Cinema create(Cinema cinema) {
+        return cinemaRepository.save(cinema);
+    }
 }
