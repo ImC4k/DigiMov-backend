@@ -118,10 +118,10 @@ public class GenreIntegrationTest {
                 "}";
 
         //when
-        mockMvc.perform(MockMvcRequestBuilders.put("/genres/" + "5fc8913234ba53396c26a863")
+        mockMvc.perform(MockMvcRequestBuilders.put("/genres/" + "123")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(genreAsJson))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -139,5 +139,12 @@ public class GenreIntegrationTest {
         //when
         mockMvc.perform(MockMvcRequestBuilders.delete("/genres/" + "5fc8913234ba53396c26a863"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void should_return_400_bad_request_when_delete_genre_given_illegal_genre_id() throws Exception {
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.delete("/genres/" + "123"))
+                .andExpect(status().isBadRequest());
     }
 }
