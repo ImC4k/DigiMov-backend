@@ -197,4 +197,11 @@ public class CinemaIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.delete("/cinemas/" + "5fc8913234ba53396c26a863"))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    public void should_return_400_bad_request_when_delete_cinema_given_illegal_cinema_id() throws Exception {
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.delete("/cinemas/" + "123"))
+                .andExpect(status().isBadRequest());
+    }
 }
