@@ -87,4 +87,17 @@ public class GenreServiceTest {
         }, "Genre not found");
     }
 
+    @Test
+    void should_return_created_genre_when_create_genre_given_new_genre() {
+        //given
+        Genre genre1 = new Genre("Romance");
+        when(genreRepository.save(genre1)).thenReturn(genre1);
+
+        //when
+        final Genre actual = genreService.create(genre1);
+
+        //then
+        assertEquals(genre1, actual);
+    }
+
 }
