@@ -65,4 +65,11 @@ public class MovieIntegrationTest {
                 .andExpect(jsonPath("$.imageUrl").value("movie1.jpg"))
                 .andExpect(jsonPath("$.rating").value("8"));
     }
+
+    @Test
+    public void should_return_404_not_found_when_get_movie_given_invalid_movie_id() throws Exception {
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.get("/movies/" + "5fc8913234ba53396c26a863"))
+                .andExpect(status().isNotFound());
+    }
 }
