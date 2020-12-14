@@ -68,6 +68,13 @@ public class CinemaIntegrationTest {
     }
 
     @Test
+    public void should_return_400_bad_request_when_get_cinema_given_illegal_cinema_id() throws Exception {
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.get("/cinemas/" + "123"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void should_return_created_cinema_when_create_cinema_given_complete_new_cinema_info() throws Exception {
         String cinemaAsJson = "{\n" +
                 "    \"name\": \"cinema 1\",\n" +
