@@ -29,7 +29,7 @@ public class CinemaIntegrationTest {
     }
 
     @Test
-    public void should_return_all_cinemas_when_getAll_given_cinemas() throws Exception {
+    public void should_return_all_cinemas_when_get_all_cinemas_given_cinemas() throws Exception {
         Cinema cinema1 = new Cinema("cinema 1", "hong kong", "cinema1.jpg", "8:00-23:00", "12345678");
         cinemaRepository.save(cinema1);
 
@@ -45,7 +45,7 @@ public class CinemaIntegrationTest {
     }
 
     @Test
-    public void should_return_specific_cinema_when_getAById_given_valid_cinema_id() throws Exception {
+    public void should_return_specific_cinema_when_get_cinema_given_valid_cinema_id() throws Exception {
         Cinema cinema1 = new Cinema("cinema 1", "hong kong", "cinema1.jpg", "8:00-23:00", "12345678");
         cinemaRepository.save(cinema1);
 
@@ -61,14 +61,14 @@ public class CinemaIntegrationTest {
     }
 
     @Test
-    public void should_return_404NotFound_when_getAll_given_invalid_cinema_id() throws Exception {
+    public void should_return_404NotFound_when_get_cinema_given_invalid_cinema_id() throws Exception {
         //when
         mockMvc.perform(MockMvcRequestBuilders.get("/cinemas/" + "5fc8913234ba53396c26a863"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    public void should_return_created_cinema_when_create_given_new_cinema() throws Exception {
+    public void should_return_created_cinema_when_create_cinema_given_complete_new_cinema_info() throws Exception {
         String cinemaAsJson = "{\n" +
                 "    \"name\": \"cinema 1\",\n" +
                 "    \"address\": \"hong kong\",\n" +
@@ -91,7 +91,28 @@ public class CinemaIntegrationTest {
     }
 
     @Test
-    public void should_return_updated_cinema_when_update_given_valid_cinema_id_and_cinema_update_info() throws Exception {
+    public void should_return_created_imcompleted_cinema_when_create_cinema_given_incomplete_new_cinema_info() throws Exception {
+        String cinemaAsJson = "{\n" +
+                "    \"name\": \"cinema 1\",\n" +
+                "    \"address\": \"hong kong\",\n" +
+                "    \"imageUrl\": \"cinema1.jpg\"\n" +
+                "}";
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.post("/cinemas")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(cinemaAsJson))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").isString())
+                .andExpect(jsonPath("$.name").value("cinema 1"))
+                .andExpect(jsonPath("$.address").value("hong kong"))
+                .andExpect(jsonPath("$.imageUrl").value("cinema1.jpg"))
+                .andExpect(jsonPath("$.openingHours").isEmpty())
+                .andExpect(jsonPath("$.hotline").isEmpty());
+    }
+
+    @Test
+    public void should_return_updated_cinema_when_update_cinema_given_valid_cinema_id_and_cinema_update_info() throws Exception {
         Cinema cinema1 = new Cinema("cinema 1", "hong kong", "cinema1.jpg", "8:00-23:00", "12345678");
         cinemaRepository.save(cinema1);
         String cinemaAsJson = "{\n" +
@@ -116,7 +137,7 @@ public class CinemaIntegrationTest {
     }
 
     @Test
-    public void should_return_404NotFound_when_update_given_invalid_cinema_id_and_cinema_update_info() throws Exception {
+    public void should_return_404NotFound_when_update_cinema_given_invalid_cinema_id_and_cinema_update_info() throws Exception {
         Cinema cinema1 = new Cinema("cinema 1", "hong kong", "cinema1.jpg", "8:00-23:00", "12345678");
         cinemaRepository.save(cinema1);
         String cinemaAsJson = "{\n" +
@@ -135,7 +156,7 @@ public class CinemaIntegrationTest {
     }
 
     @Test
-    public void should_delete_cinema_when_delte_given_valid_cinema_id() throws Exception {
+    public void should_delete_cinema_when_delete_cinema_given_valid_cinema_id() throws Exception {
         Cinema cinema1 = new Cinema("cinema 1", "hong kong", "cinema1.jpg", "8:00-23:00", "12345678");
         cinemaRepository.save(cinema1);
 
@@ -145,7 +166,7 @@ public class CinemaIntegrationTest {
     }
 
     @Test
-    public void should_return_404NotFound_when_delete_given_invalid_cinema_id() throws Exception {
+    public void should_return_404NotFound_when_delete_cinema_given_invalid_cinema_id() throws Exception {
         //when
         mockMvc.perform(MockMvcRequestBuilders.delete("/cinemas/" + "5fc8913234ba53396c26a863"))
                 .andExpect(status().isNotFound());
