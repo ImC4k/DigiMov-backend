@@ -1,8 +1,6 @@
 package com.team_linne.digimov.service;
 
-import com.sun.tools.javac.jvm.Gen;
 import com.team_linne.digimov.exception.GenreNotFoundException;
-import com.team_linne.digimov.model.Cinema;
 import com.team_linne.digimov.model.Genre;
 import com.team_linne.digimov.repository.GenreRepository;
 import org.springframework.beans.factory.annotation.Autowired;
