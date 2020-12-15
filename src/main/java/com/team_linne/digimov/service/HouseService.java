@@ -20,4 +20,8 @@ public class HouseService {
     public House getById(String id) {
         return houseRepository.findById(id).orElseThrow(HouseNotFoundException::new);
     }
+
+    public House create(House houseCreate) {
+        return houseRepository.save(houseCreate);
+    }
 }

@@ -82,4 +82,17 @@ public class HouseServiceTest {
         //then
         assertThrows(HouseNotFoundException.class, () -> houseService.getById("999"), "House not found");
     }
+
+    @Test
+    void should_return_created_house_when_create_house_given_new_house() {
+        //given
+        House house1 = new House("", "house 1", 200);
+        when(houseRepository.save(house1)).thenReturn(house1);
+
+        //when
+        final House actual = houseService.create(house1);
+
+        //then
+        assertEquals(house1, actual);
+    }
 }
