@@ -130,7 +130,7 @@ public class MovieSessionIntegrationTest {
     }
 
     @Test
-    public void should_return_created_incompleted_movie_session_when_create_movie_session_given_incomplete_new_movie_session_info() throws Exception {
+    public void should_return_created_incomplete_movie_session_when_create_movie_session_given_incomplete_new_movie_session_info() throws Exception {
         String movieSessionAsJson = "{\n" +
                 "    \"movieId\": \"mov1\",\n" +
                 "    \"houseId\": \"house1\",\n" +
@@ -152,6 +152,42 @@ public class MovieSessionIntegrationTest {
                 .andExpect(jsonPath("$.startTime").isEmpty())
                 .andExpect(jsonPath("$.prices").isMap())
                 .andExpect(jsonPath("$.occupied").isEmpty());
+    }
+
+    @Test
+    public void should_return_updated_movie_session_when_update_movie_given_valid_movie_session_id_and_movie_session_update_info() throws Exception {
+        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        movieSessionRepository.insert(movieSession1);
+
+        String movieSessionAsJson = "{\n" +
+                "    \"movieId\": \"mov1\",\n" +
+                "    \"houseId\": \"house1\",\n" +
+                "    \"startTime\": 10000,\n" +
+                "    \"prices\": {\n" +
+                "        \"Elderly\": 25.0,\n" +
+                "        \"Adult\": 100.0\n" +
+                "    },\n" +
+                "    \"occupied\": {\n" +
+                "        \"1\" : {\n" +
+                "            \"status\": \"Sold\",\n" +
+                "            \"processStartTime\": 1000,\n" +
+                "            \"clientSessionId\": \"r32rewfge\"\n" +
+                "        }\n" +
+                "    }\n" +
+                "}";
+
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.put("/moviesessions/" + movieSession1.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(movieSessionAsJson))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isString())
+                .andExpect(jsonPath("$.movieId").value("mov1"))
+                .andExpect(jsonPath("$.houseId").value("house1"))
+                .andExpect(jsonPath("$.startTime").value(10000L))
+                .andExpect(jsonPath("$.prices").isMap())
+                .andExpect(jsonPath("$.occupied").isMap());
     }
 
 }

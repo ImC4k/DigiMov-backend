@@ -1,12 +1,10 @@
 package com.team_linne.digimov.controller;
 
 import com.team_linne.digimov.dto.MovieRequest;
+import com.team_linne.digimov.dto.MovieResponse;
 import com.team_linne.digimov.dto.MovieSessionRequest;
 import com.team_linne.digimov.dto.MovieSessionResponse;
 import com.team_linne.digimov.mapper.MovieSessionMapper;
-import com.team_linne.digimov.model.Movie;
-import com.team_linne.digimov.model.MovieSession;
-import com.team_linne.digimov.repository.MovieSessionRepository;
 import com.team_linne.digimov.service.MovieSessionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -39,5 +37,10 @@ public class MovieSessionController {
     @ResponseStatus(HttpStatus.CREATED)
     public MovieSessionResponse create(@RequestBody MovieSessionRequest movieSessionRequest) {
         return movieSessionMapper.toResponse(movieSessionService.create(movieSessionMapper.toEntity(movieSessionRequest)));
+    }
+
+    @PutMapping("/{id}")
+    public MovieSessionResponse update(@PathVariable String id, @RequestBody MovieSessionRequest movieSessionUpdate) {
+        return movieSessionMapper.toResponse(movieSessionService.update(id, movieSessionMapper.toEntity(movieSessionUpdate)));
     }
 }
