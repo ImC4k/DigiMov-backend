@@ -13,6 +13,7 @@ public class CinemaRequest {
         this.imageUrl = imageUrl;
         this.openingHours = openingHours;
         this.hotline = hotline;
+        this.hotline = hotline;
     }
 
     public CinemaRequest() {
