@@ -5,7 +5,9 @@ import com.team_linne.digimov.dto.HouseRequest;
 import com.team_linne.digimov.dto.HouseResponse;
 import com.team_linne.digimov.model.House;
 import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Component;
 
+@Component
 public class HouseMapper {
     public House toEntity(HouseRequest houseRequest) {
         House house = new House();
