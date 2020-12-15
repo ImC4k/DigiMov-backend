@@ -112,4 +112,15 @@ public class HouseServiceTest {
         //then
         assertEquals(house2, actual);
     }
+
+    @Test
+    void should_throw_house_not_found_exception_when_update_house_given_invalid_house_id_and_updated_house_info() {
+        //given
+        House house = new House("", "house 1", 200);
+        house.setId("1");
+
+        //when
+        //then
+        assertThrows(HouseNotFoundException.class, () -> houseService.update("999", house), "House not found");
+    }
 }
