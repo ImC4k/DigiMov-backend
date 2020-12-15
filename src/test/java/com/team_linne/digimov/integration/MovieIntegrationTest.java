@@ -290,6 +290,7 @@ public class MovieIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.delete("/genres/" + savedGenreInDB.getId())).andExpect(status().isNoContent());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/movies/" + savedMovieInDB.getId()))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.genres").isEmpty());
     }
 }
