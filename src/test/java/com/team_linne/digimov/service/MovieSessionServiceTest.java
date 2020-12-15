@@ -30,8 +30,8 @@ public class MovieSessionServiceTest {
     @Test
     public void should_return_all_movie_session_when_get_all_given_list_of_movie_session() {
         //given String houseId, Long startTime, Map<String, Double> prices, Map<Integer, SeatStatus> occupied
-        MovieSession movieSession1 = new MovieSession("111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
-        MovieSession movieSession2 = new MovieSession("222", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        MovieSession movieSession2 = new MovieSession("mov2", "222", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
         List<MovieSession> movieSessionList = new ArrayList<>();
         movieSessionList.add(movieSession1);
         movieSessionList.add(movieSession2);
@@ -60,8 +60,8 @@ public class MovieSessionServiceTest {
     @Test
     void should_return_specific_movie_session_when_get_by_id_given_list_of_movie_session_and_valid_movie_session_id() {
         //given
-        MovieSession movieSession1 = new MovieSession("111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
-        MovieSession movieSession2 = new MovieSession("222", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        MovieSession movieSession2 = new MovieSession("mov2", "222", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
 
         movieSession1.setId("1");
         movieSession2.setId("2");
@@ -89,7 +89,7 @@ public class MovieSessionServiceTest {
     @Test
     public void should_return_created_movie_session_when_create_movie_session_given_new_movie_session() {
         //given
-        MovieSession movieSession = new MovieSession("111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        MovieSession movieSession = new MovieSession("mov1", "111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
         when(movieSessionRepository.insert(movieSession)).thenReturn(movieSession);
 
         //when
@@ -102,8 +102,8 @@ public class MovieSessionServiceTest {
     @Test
     void should_return_updated_movie_session_when_update_movie_session_given_movie_session_id_and_updated_movie_session_info() {
         //given
-        MovieSession movieSession1 = new MovieSession("111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
-        MovieSession movieSession2 = new MovieSession("222", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        MovieSession movieSession2 = new MovieSession("mov2", "222", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
 
         movieSession1.setId("1");
 
@@ -120,7 +120,7 @@ public class MovieSessionServiceTest {
     @Test
     public void should_throw_MovieSessionNotFoundException_when_update_given_invalid_movie_session_id() {
         //given
-        MovieSession movieSession1 = new MovieSession("111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
         movieSession1.setId("1");
 
         //when
@@ -134,7 +134,7 @@ public class MovieSessionServiceTest {
     @Test
     void should_delete_movie_session_when_delete_movie_session_given_valid_movie_session_id() {
         //given
-        MovieSession movieSession1 = new MovieSession("111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
         movieSession1.setId("1");
         when(movieSessionRepository.findById("1")).thenReturn(Optional.of(movieSession1));
 

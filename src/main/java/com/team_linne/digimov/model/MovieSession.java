@@ -20,7 +20,8 @@ public class MovieSession {
     public MovieSession() {
     }
 
-    public MovieSession(String houseId, Long startTime, Map<String, Double> prices, Map<Integer, SeatStatus> occupied) {
+    public MovieSession(String movieId, String houseId, Long startTime, Map<String, Double> prices, Map<Integer, SeatStatus> occupied) {
+        this.movieId = movieId;
         this.houseId = houseId;
         this.startTime = startTime;
         this.prices = prices;
