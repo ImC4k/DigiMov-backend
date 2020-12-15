@@ -219,7 +219,7 @@ public class MovieSessionIntegrationTest {
     }
 
     @Test
-    public void should_return_400_when_update_movie_session_given_invalid_movie_session_id_and_movie_session_update_info() throws Exception {
+    public void should_return_400_bad_request_when_update_movie_session_given_invalid_movie_session_id_and_movie_session_update_info() throws Exception {
         MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
         movieSessionRepository.insert(movieSession1);
 
@@ -243,6 +243,40 @@ public class MovieSessionIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.put("/moviesessions/" + "zxxxcc")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(movieSessionAsJson))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void should_delete_movie_when_delete_movie_given_valid_movie_id() throws Exception {
+        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        movieSessionRepository.insert(movieSession1);
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.delete("/moviesessions/" + movieSession1.getId()))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void should_return_404_not_found_when_delete_movie_session_given_invalid_movie_id() throws Exception {
+        //given
+        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        movieSessionRepository.insert(movieSession1);
+
+        //when
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.delete("/moviesessions/" + "5fc8913234ba53396c26a863"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void should_return_400_bad_request_when_delete_movie_session_given_invalid_movie_id() throws Exception {
+        //given
+        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        movieSessionRepository.insert(movieSession1);
+
+        //when
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.delete("/moviesessions/" + "vbcxbcxb"))
                 .andExpect(status().isBadRequest());
     }
 

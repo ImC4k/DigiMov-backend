@@ -44,5 +44,10 @@ public class MovieSessionController {
         return movieSessionMapper.toResponse(movieSessionService.update(id, movieSessionMapper.toEntity(movieSessionUpdate)));
     }
 
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable String id) {
+        this.movieSessionService.delete(id);
+    }
 
 }
