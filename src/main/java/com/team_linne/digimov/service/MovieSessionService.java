@@ -18,4 +18,8 @@ public class MovieSessionService {
     public MovieSession getById(String id) {
         return this.movieSessionRepository.findById(id).orElseThrow(MovieNotFoundException::new);
     }
+
+    public MovieSession create(MovieSession movieSession) {
+        return this.movieSessionRepository.insert(movieSession);
+    }
 }

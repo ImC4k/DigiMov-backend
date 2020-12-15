@@ -78,12 +78,28 @@ public class MovieSessionServiceTest {
     }
 
     @Test
-    public void should_throw_MovieSessionNotFoundException_when_get_by_id_given_invalid_moive_session_id() {
+    public void should_throw_MovieSessionNotFoundException_when_get_by_id_given_invalid_movie_session_id() {
         //given
         assertThrows(MovieNotFoundException.class, () -> {
             movieSessionService.getById("5fc8913234ba53396c26a863");
         }, "Movie Session not found");
     }
+
+    @Test
+    public void should_return_created_movie_session_when_create_movie_session_given_new_movie_session() {
+        //given
+        MovieSession movieSession = new MovieSession("111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        when(movieSessionRepository.insert(movieSession)).thenReturn(movieSession);
+
+        //when
+        MovieSession actual = movieSessionService.create(movieSession);
+
+        //then
+        assertEquals(movieSession, actual);
+    }
+
+
+
 
 
 }
