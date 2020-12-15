@@ -7,7 +7,9 @@ import com.team_linne.digimov.repository.MovieRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
+
 @Service
 public class MovieService {
     @Autowired
@@ -38,5 +40,15 @@ public class MovieService {
     public void delete(String id) {
         Movie movie = this.getById(id);
         movieRepository.deleteById(movie.getId());
+    }
+
+    public void deleteGenreId(String genreId) {
+        List<Movie> moviesWithGenreId = movieRepository.findAllByGenreIdsIn(Collections.singletonList(genreId));
+        moviesWithGenreId.forEach(movie -> {
+            List<String> genreIds = movie.getGenreIds();
+            genreIds.remove(genreId);
+            movie.setGenreIds(genreIds);
+            movieRepository.save(movie);
+        });
     }
 }

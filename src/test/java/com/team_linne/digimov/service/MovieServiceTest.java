@@ -1,7 +1,9 @@
 package com.team_linne.digimov.service;
 
 import com.team_linne.digimov.exception.MovieNotFoundException;
+import com.team_linne.digimov.model.Genre;
 import com.team_linne.digimov.model.Movie;
+import com.team_linne.digimov.repository.GenreRepository;
 import com.team_linne.digimov.repository.MovieRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,8 +12,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -24,6 +29,11 @@ public class MovieServiceTest {
     private MovieService movieService;
     @Mock
     private MovieRepository movieRepository;
+
+    @InjectMocks
+    private GenreService genreService;
+    @Mock
+    private GenreRepository genreRepository;
 
     @Test
     void should_return_all_movies_when_get_all_given_list_of_movies() {
@@ -150,4 +160,17 @@ public class MovieServiceTest {
         }, "Movie not found");
     }
 
+    @Test
+    void should_call_update_2_time_when_delete_genre_id_given_2_movies_originally_contained_test_id() {
+        Movie movie1 = new Movie("movie1",123, Stream.of("1", "2").collect(Collectors.toList()), "John","a movie","movie1.jpg","8", new ArrayList<>(), "Cantonese");
+        Movie movie2 = new Movie("movie2",123, Stream.of("1", "2").collect(Collectors.toList()),"John","a movie","movie1.jpg","8", new ArrayList<>(), "Cantonese");
+        when(movieRepository.findAllByGenreId(anyString())).thenReturn(Stream.of(movie1, movie2).collect(Collectors.toList()));
+
+        // when
+        movieService.deleteGenreId("1");
+
+        // then
+        verify(movieRepository, times(2)).save(any());
+    }
 }
+
