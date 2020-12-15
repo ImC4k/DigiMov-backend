@@ -1,9 +1,9 @@
 package com.team_linne.digimov.service;
 
 import com.team_linne.digimov.exception.HouseNotFoundException;
-import com.team_linne.digimov.exception.HouseNotFoundException;
+import com.team_linne.digimov.model.Cinema;
 import com.team_linne.digimov.model.House;
-import com.team_linne.digimov.model.House;
+import com.team_linne.digimov.repository.CinemaRepository;
 import com.team_linne.digimov.repository.HouseRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +26,9 @@ public class HouseServiceTest {
     private HouseService houseService;
     @Mock
     private HouseRepository houseRepository;
+
+    @Mock
+    private CinemaRepository cinemaRepository;
 
     @Test
     void should_return_all_houses_when_get_all_given_list_of_houses() {
@@ -87,7 +90,9 @@ public class HouseServiceTest {
     @Test
     void should_return_created_house_when_create_house_given_new_house() {
         //given
-        House house1 = new House("", "house 1", 200);
+        Cinema cinema = new Cinema();
+        cinema.setId("1");
+        House house1 = new House("1", "house 1", 200);
         when(houseRepository.save(house1)).thenReturn(house1);
 
         //when

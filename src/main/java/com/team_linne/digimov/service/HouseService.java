@@ -2,6 +2,7 @@ package com.team_linne.digimov.service;
 
 import com.team_linne.digimov.exception.HouseNotFoundException;
 import com.team_linne.digimov.model.House;
+import com.team_linne.digimov.repository.CinemaRepository;
 import com.team_linne.digimov.repository.HouseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,9 @@ public class HouseService {
     @Autowired
     private HouseRepository houseRepository;
 
+    @Autowired
+    private CinemaRepository cinemaRepository;
+
     public List<House> getAll() {
         return houseRepository.findAll();
     }
@@ -22,6 +26,7 @@ public class HouseService {
     }
 
     public House create(House houseCreate) {
+        cinemaRepository.findById(houseCreate.getCinemaId());
         return houseRepository.save(houseCreate);
     }
 
