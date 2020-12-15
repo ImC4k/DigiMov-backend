@@ -24,4 +24,10 @@ public class HouseService {
     public House create(House houseCreate) {
         return houseRepository.save(houseCreate);
     }
+
+    public House update(String id, House houseUpdate) {
+        House house = this.getById(id);
+        houseUpdate.setId(id);
+        return this.create(houseUpdate);
+    }
 }

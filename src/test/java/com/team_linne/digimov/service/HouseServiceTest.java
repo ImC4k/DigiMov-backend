@@ -17,6 +17,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -94,5 +95,21 @@ public class HouseServiceTest {
 
         //then
         assertEquals(house1, actual);
+    }
+
+    @Test
+    void should_return_updated_house_when_update_house_given_house_id_and_updated_house_info() {
+        //given
+        House house1 = new House("", "house 1", 200);
+        House house2 = new House("", "house 2", 300);
+        house1.setId("1");
+        when(houseRepository.findById("1")).thenReturn(Optional.of(house1));
+        when(houseRepository.save(any(House.class))).thenReturn(house2);
+
+        //when
+        final House actual = houseService.update("1", house2);
+
+        //then
+        assertEquals(house2, actual);
     }
 }
