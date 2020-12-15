@@ -32,7 +32,7 @@ public class MovieIntegrationTest {
 
     @Test
     public void should_return_all_movies_when_get_all_movies_given_movies() throws Exception {
-        Movie movie1 = new Movie("movie1",123, new ArrayList<>(),"John","a movie","movie1.jpg","8");
+        Movie movie1 = new Movie("movie1", 123, new ArrayList<>(), "John", "a movie", "movie1.jpg", "8", new ArrayList<>(), "Cantonese");
         movieRepository.save(movie1);
 
         //when
@@ -45,12 +45,14 @@ public class MovieIntegrationTest {
                 .andExpect(jsonPath("$[0].director").value("John"))
                 .andExpect(jsonPath("$[0].description").value("a movie"))
                 .andExpect(jsonPath("$[0].imageUrl").value("movie1.jpg"))
-                .andExpect(jsonPath("$[0].rating").value("8"));
+                .andExpect(jsonPath("$[0].rating").value("8"))
+                .andExpect(jsonPath("$[0].cast").isEmpty())
+                .andExpect(jsonPath("$[0].language").value("Cantonese"));
     }
 
     @Test
     public void should_return_specific_movie_when_get_movie_given_valid_movie_id() throws Exception {
-        Movie movie1 = new Movie("movie1",123, new ArrayList<>(),"John","a movie","movie1.jpg","8");
+        Movie movie1 = new Movie("movie1", 123, new ArrayList<>(), "John", "a movie", "movie1.jpg", "8", new ArrayList<>(), "Cantonese");
         movieRepository.save(movie1);
 
         //when
@@ -63,7 +65,9 @@ public class MovieIntegrationTest {
                 .andExpect(jsonPath("$.director").value("John"))
                 .andExpect(jsonPath("$.description").value("a movie"))
                 .andExpect(jsonPath("$.imageUrl").value("movie1.jpg"))
-                .andExpect(jsonPath("$.rating").value("8"));
+                .andExpect(jsonPath("$.rating").value("8"))
+                .andExpect(jsonPath("$.cast").isEmpty())
+                .andExpect(jsonPath("$.language").value("Cantonese"));
     }
 
     @Test
@@ -89,7 +93,9 @@ public class MovieIntegrationTest {
                 "    \"director\": \"John\",\n" +
                 "    \"description\": \"a movie\",\n" +
                 "    \"imageUrl\": \"movie1.jpg\",\n" +
-                "    \"rating\": \"8\"\n" +
+                "    \"rating\": \"8\",\n" +
+                "    \"cast\": [],\n" +
+                "    \"language\": \"Cantonese\"\n" +
                 "}";
 
         //when
@@ -104,7 +110,9 @@ public class MovieIntegrationTest {
                 .andExpect(jsonPath("$.director").value("John"))
                 .andExpect(jsonPath("$.description").value("a movie"))
                 .andExpect(jsonPath("$.imageUrl").value("movie1.jpg"))
-                .andExpect(jsonPath("$.rating").value("8"));
+                .andExpect(jsonPath("$.rating").value("8"))
+                .andExpect(jsonPath("$.cast").isEmpty())
+                .andExpect(jsonPath("$.language").value("Cantonese"));
     }
 
     @Test
@@ -129,7 +137,9 @@ public class MovieIntegrationTest {
                 .andExpect(jsonPath("$.director").value("John"))
                 .andExpect(jsonPath("$.description").isEmpty())
                 .andExpect(jsonPath("$.imageUrl").isEmpty())
-                .andExpect(jsonPath("$.rating").value("8"));
+                .andExpect(jsonPath("$.rating").value("8"))
+                .andExpect(jsonPath("$.cast").isEmpty())
+                .andExpect(jsonPath("$.language").isEmpty());
     }
 
     @Test
@@ -141,7 +151,9 @@ public class MovieIntegrationTest {
                 "    \"director\": \"John\",\n" +
                 "    \"description\": \"a movie\",\n" +
                 "    \"imageUrl\": \"movie1.jpg\",\n" +
-                "    \"rating\": \"8\"\n" +
+                "    \"rating\": \"8\",\n" +
+                "    \"cast\": [],\n" +
+                "    \"language\": \"Cantonese\"\n" +
                 "}";
 
         //when
@@ -153,7 +165,7 @@ public class MovieIntegrationTest {
 
     @Test
     public void should_return_updated_movie_when_update_movie_given_valid_movie_id_and_movie_update_info() throws Exception {
-        Movie movie1 = new Movie("movie1",123, new ArrayList<>(),"John","a movie","movie1.jpg","8");
+        Movie movie1 = new Movie("movie1", 123, new ArrayList<>(), "John", "a movie", "movie1.jpg", "8", new ArrayList<>(), "Cantonese");
         movieRepository.save(movie1);
         String movieAsJson = "{\n" +
                 "    \"name\": \"movie1\",\n" +
@@ -162,7 +174,9 @@ public class MovieIntegrationTest {
                 "    \"director\": \"John\",\n" +
                 "    \"description\": \"a movie\",\n" +
                 "    \"imageUrl\": \"movie1.jpg\",\n" +
-                "    \"rating\": \"3\"\n" +
+                "    \"rating\": \"3\",\n" +
+                "    \"cast\": [],\n" +
+                "    \"language\": \"Cantonese\"\n" +
                 "}";
 
         //when
@@ -177,12 +191,14 @@ public class MovieIntegrationTest {
                 .andExpect(jsonPath("$.director").value("John"))
                 .andExpect(jsonPath("$.description").value("a movie"))
                 .andExpect(jsonPath("$.imageUrl").value("movie1.jpg"))
-                .andExpect(jsonPath("$.rating").value("3"));
+                .andExpect(jsonPath("$.rating").value("3"))
+                .andExpect(jsonPath("$.cast").isEmpty())
+                .andExpect(jsonPath("$.language").value("Cantonese"));
     }
 
     @Test
     public void should_return_404_not_found_when_update_movie_given_invalid_movie_id_and_movie_update_info() throws Exception {
-        Movie movie1 = new Movie("movie1",123, new ArrayList<>(),"John","a movie","movie1.jpg","8");
+        Movie movie1 = new Movie("movie1", 123, new ArrayList<>(), "John", "a movie", "movie1.jpg", "8", new ArrayList<>(), "Cantonese");
         movieRepository.save(movie1);
         String movieAsJson = "{\n" +
                 "    \"name\": \"movie1\",\n" +
@@ -191,8 +207,9 @@ public class MovieIntegrationTest {
                 "    \"director\": \"John\",\n" +
                 "    \"description\": \"a movie\",\n" +
                 "    \"imageUrl\": \"movie1.jpg\",\n" +
-                "    \"rating\": \"3\"\n" +
-                "}";
+                "    \"rating\": \"3\",\n" +
+                "    \"cast\": [],\n" +
+                "    \"language\": \"Cantonese\"\n" + "}";
 
         //when
         mockMvc.perform(MockMvcRequestBuilders.put("/movies/" + "5fc8913234ba53396c26a863")
@@ -203,7 +220,7 @@ public class MovieIntegrationTest {
 
     @Test
     public void should_return_400_bad_request_when_update_movie_given_illegal_movie_id_and_movie_update_info() throws Exception {
-        Movie movie1 = new Movie("movie1",123, new ArrayList<>(),"John","a movie","movie1.jpg","8");
+        Movie movie1 = new Movie("movie1", 123, new ArrayList<>(), "John", "a movie", "movie1.jpg", "8", new ArrayList<>(), "Cantonese");
         movieRepository.save(movie1);
         String movieAsJson = "{\n" +
                 "    \"name\": \"movie1\",\n" +
@@ -212,7 +229,9 @@ public class MovieIntegrationTest {
                 "    \"director\": \"John\",\n" +
                 "    \"description\": \"a movie\",\n" +
                 "    \"imageUrl\": \"movie1.jpg\",\n" +
-                "    \"rating\": \"3\"\n" +
+                "    \"rating\": \"3\",\n" +
+                "    \"cast\": [],\n" +
+                "    \"language\": \"Cantonese\"\n" +
                 "}";
 
         //when
@@ -224,7 +243,7 @@ public class MovieIntegrationTest {
 
     @Test
     public void should_delete_movie_when_delete_movie_given_valid_movie_id() throws Exception {
-        Movie movie1 = new Movie("movie1",123, new ArrayList<>(),"John","a movie","movie1.jpg","8");
+        Movie movie1 = new Movie("movie1", 123, new ArrayList<>(), "John", "a movie", "movie1.jpg", "8", new ArrayList<>(), "Cantonese");
         movieRepository.save(movie1);
 
         //when
@@ -234,7 +253,7 @@ public class MovieIntegrationTest {
 
     @Test
     public void should_return_404_not_found_when_delete_movie_given_invalid_movie_id() throws Exception {
-        Movie movie1 = new Movie("movie1",123, new ArrayList<>(),"John","a movie","movie1.jpg","8");
+        Movie movie1 = new Movie("movie1", 123, new ArrayList<>(), "John", "a movie", "movie1.jpg", "8", new ArrayList<>(), "Cantonese");
         movieRepository.save(movie1);
 
         //when
@@ -244,7 +263,7 @@ public class MovieIntegrationTest {
 
     @Test
     public void should_return_400_bad_request_when_delete_movie_given_illegal_movie_id() throws Exception {
-        Movie movie1 = new Movie("movie1",123, new ArrayList<>(),"John","a movie","movie1.jpg","8");
+        Movie movie1 = new Movie("movie1", 123, new ArrayList<>(), "John", "a movie", "movie1.jpg", "8", new ArrayList<>(), "Cantonese");
         movieRepository.save(movie1);
 
         //when
