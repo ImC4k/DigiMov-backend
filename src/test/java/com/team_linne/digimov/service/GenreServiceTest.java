@@ -80,9 +80,7 @@ public class GenreServiceTest {
         //given
         //when
         //then
-        assertThrows(GenreNotFoundException.class, () -> {
-            genreService.getById("999");
-        }, "Genre not found");
+        assertThrows(GenreNotFoundException.class, () -> genreService.getById("999"), "Genre not found");
     }
 
     @Test
@@ -122,9 +120,7 @@ public class GenreServiceTest {
 
         //when
         //then
-        assertThrows(GenreNotFoundException.class, () -> {
-            genreService.update("999", genre);
-        }, "Genre not found");
+        assertThrows(GenreNotFoundException.class, () -> genreService.update("999", genre), "Genre not found");
     }
 
     @Test
@@ -147,9 +143,6 @@ public class GenreServiceTest {
         //given
         //when
         //then
-        assertThrows(GenreNotFoundException.class, () -> {
-            genreService.delete("999");
-        }, "Genre not found");
+        assertThrows(GenreNotFoundException.class, () -> genreService.delete("999"), "Genre not found");
     }
-
 }
