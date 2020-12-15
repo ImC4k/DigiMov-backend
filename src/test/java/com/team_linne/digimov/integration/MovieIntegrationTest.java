@@ -1,6 +1,8 @@
 package com.team_linne.digimov.integration;
 
+import com.team_linne.digimov.model.Genre;
 import com.team_linne.digimov.model.Movie;
+import com.team_linne.digimov.repository.GenreRepository;
 import com.team_linne.digimov.repository.MovieRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -12,6 +14,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -24,6 +28,9 @@ public class MovieIntegrationTest {
 
     @Autowired
     MovieRepository movieRepository;
+
+    @Autowired
+    GenreRepository genreRepository;
 
     @AfterEach
     void tearDown() {
@@ -269,5 +276,20 @@ public class MovieIntegrationTest {
         //when
         mockMvc.perform(MockMvcRequestBuilders.delete("/movies/" + "123"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void should_return_movie_without_genre_when_delete_genre_given_movie_with_genre_id() throws Exception {
+        Genre genre = new Genre("Romance");
+        Genre savedGenreInDB = genreRepository.save(genre);
+        List<String> genreIds = Collections.singletonList(savedGenreInDB.getId());
+        Movie movie = new Movie("movie1",123, genreIds,"John","a movie","movie1.jpg","8", new ArrayList<>(), "Cantonese");
+
+        Movie savedMovieInDB = movieRepository.save(movie);
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/genres/" + savedGenreInDB.getId())).andExpect(status().isNoContent());
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/movies/" + savedMovieInDB.getId()))
+                .andExpect(status().isOk());
     }
 }
