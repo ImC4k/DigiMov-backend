@@ -77,4 +77,13 @@ public class MovieSessionServiceTest {
         assertEquals(movieSession1, actual);
     }
 
+    @Test
+    public void should_throw_MovieSessionNotFoundException_when_get_by_id_given_invalid_moive_session_id() {
+        //given
+        assertThrows(MovieNotFoundException.class, () -> {
+            movieSessionService.getById("5fc8913234ba53396c26a863");
+        }, "Movie Session not found");
+    }
+
+
 }

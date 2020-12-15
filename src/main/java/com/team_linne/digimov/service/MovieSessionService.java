@@ -1,5 +1,6 @@
 package com.team_linne.digimov.service;
 
+import com.team_linne.digimov.exception.MovieNotFoundException;
 import com.team_linne.digimov.model.MovieSession;
 import com.team_linne.digimov.repository.MovieSessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,6 @@ public class MovieSessionService {
     }
 
     public MovieSession getById(String id) {
-        return this.movieSessionRepository.findById(id).orElse(null);
+        return this.movieSessionRepository.findById(id).orElseThrow(MovieNotFoundException::new);
     }
 }
