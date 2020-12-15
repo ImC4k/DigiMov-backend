@@ -89,5 +89,11 @@ public class MovieSessionIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    public void should_return_400_bad_request_when_get_movie_session_given_illegal_session_id() throws Exception {
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.get("/movies/" + "123"))
+                .andExpect(status().isBadRequest());
+    }
 
 }
