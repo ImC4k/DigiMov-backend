@@ -2,6 +2,7 @@ package com.team_linne.digimov.advice;
 
 import com.team_linne.digimov.exception.CinemaNotFoundException;
 import com.team_linne.digimov.exception.GenreNotFoundException;
+import com.team_linne.digimov.exception.HouseNotFoundException;
 import com.team_linne.digimov.exception.MovieNotFoundException;
 import com.team_linne.digimov.exception.MovieSessionNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalControllerAdvice {
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler({CinemaNotFoundException.class, MovieNotFoundException.class, GenreNotFoundException.class, MovieSessionNotFoundException.class})
+    @ExceptionHandler({CinemaNotFoundException.class, MovieNotFoundException.class, GenreNotFoundException.class, MovieSessionNotFoundException.class, HouseNotFoundException.class})
     public ErrorResponse handleModelNotFound(Exception exception){
         return new ErrorResponse(exception.getMessage(), HttpStatus.NOT_FOUND.name());
     }

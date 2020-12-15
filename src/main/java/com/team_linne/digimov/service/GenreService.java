@@ -12,6 +12,10 @@ import java.util.List;
 public class GenreService {
     @Autowired
     GenreRepository genreRepository;
+
+    @Autowired
+    MovieService movieService;
+
     public List<Genre> getAll() {
         return genreRepository.findAll();
     }
@@ -33,5 +37,8 @@ public class GenreService {
     public void delete(String id) {
         Genre genre = this.getById(id);
         genreRepository.deleteById(id);
+        if (movieService != null) {
+            movieService.deleteGenreId(id);
+        }
     }
 }
