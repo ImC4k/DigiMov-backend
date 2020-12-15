@@ -9,9 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -26,24 +30,5 @@ public class MovieSessionIntegrationTest {
     void tearDown() {
         movieSessionRepository.deleteAll();
     }
-
-//    @Test
-//    public void should_return_all_movie_session_when_get_all_given_movie_session_list() {
-//        //given
-//        Map<String, Double> prices = new HashMap<>();
-//        prices.put("Student", 50.0);
-//        prices.put("Adult", 100.0);
-//
-//        Map<Integer, SeatStatus> occupied = new HashMap<>();
-////        occupied.put(1, new SeatStatus(""))
-//
-//        MovieSession movieSession = new MovieSession("123", 10000L, prices, );
-//
-//        //when
-//
-//
-//        //then
-//
-//    }
 
 }

@@ -4,9 +4,11 @@ import com.team_linne.digimov.exception.MovieNotFoundException;
 import com.team_linne.digimov.model.MovieSession;
 import com.team_linne.digimov.repository.MovieSessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class MovieSessionService {
     @Autowired
     private MovieSessionRepository movieSessionRepository;

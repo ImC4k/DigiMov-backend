@@ -5,12 +5,12 @@ import java.util.UUID;
 public class SeatStatus {
     private String status;
     private Long processStartTime;
-    private UUID clientSessionId;
+    private String clientSessionId;
 
     public SeatStatus() {
     }
 
-    public SeatStatus(String status, Long processStartTime, UUID clientSessionId) {
+    public SeatStatus(String status, Long processStartTime, String clientSessionId) {
         this.status = status;
         this.processStartTime = processStartTime;
         this.clientSessionId = clientSessionId;
@@ -32,11 +32,11 @@ public class SeatStatus {
         this.processStartTime = processStartTime;
     }
 
-    public UUID getClientSessionId() {
+    public String getClientSessionId() {
         return clientSessionId;
     }
 
-    public void setClientSessionId(UUID clientSessionId) {
+    public void setClientSessionId(String clientSessionId) {
         this.clientSessionId = clientSessionId;
     }
 }
