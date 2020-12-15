@@ -11,12 +11,14 @@ public class MovieResponse {
     private String description;
     private String imageUrl;
     private String rating;
+    private List<String> cast;
+    private String language;
 
     public MovieResponse() {
 
     }
 
-    public MovieResponse(String id, String name, Integer duration, List<GenreResponse> genres, String director, String description, String imageUrl, String rating) {
+    public MovieResponse(String id, String name, Integer duration, List<GenreResponse> genres, String director, String description, String imageUrl, String rating, List<String> cast, String language) {
         this.id = id;
         this.name = name;
         this.duration = duration;
@@ -25,6 +27,8 @@ public class MovieResponse {
         this.description = description;
         this.imageUrl = imageUrl;
         this.rating = rating;
+        this.cast = cast;
+        this.language = language;
     }
 
     public String getId() {
@@ -89,5 +93,21 @@ public class MovieResponse {
 
     public void setRating(String rating) {
         this.rating = rating;
+    }
+
+    public List<String> getCast() {
+        return cast;
+    }
+
+    public void setCast(List<String> cast) {
+        this.cast = cast;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 }

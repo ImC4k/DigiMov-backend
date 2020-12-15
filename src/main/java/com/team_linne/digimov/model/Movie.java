@@ -17,12 +17,14 @@ public class Movie {
     private String description;
     private String imageUrl;
     private String rating;
+    private List<String> cast;
+    private String language;
 
     public Movie() {
 
     }
 
-    public Movie(String name, Integer duration, List<String> genreIds, String director, String description, String imageUrl, String rating) {
+    public Movie(String name, Integer duration, List<String> genreIds, String director, String description, String imageUrl, String rating, List<String> cast, String language) {
         this.name = name;
         this.duration = duration;
         this.genreIds = genreIds;
@@ -30,6 +32,8 @@ public class Movie {
         this.description = description;
         this.imageUrl = imageUrl;
         this.rating = rating;
+        this.cast = cast;
+        this.language = language;
     }
 
     public String getId() {
@@ -94,5 +98,21 @@ public class Movie {
 
     public void setRating(String rating) {
         this.rating = rating;
+    }
+
+    public List<String> getCast() {
+        return cast;
+    }
+
+    public void setCast(List<String> cast) {
+        this.cast = cast;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 }
