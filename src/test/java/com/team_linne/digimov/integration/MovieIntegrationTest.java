@@ -133,6 +133,25 @@ public class MovieIntegrationTest {
     }
 
     @Test
+    public void should_return_error_when_create_movie_given_complete_new_movie_info_and_illegal_genre_ids() throws Exception {
+        String movieAsJson = "{\n" +
+                "    \"name\": \"movie1\",\n" +
+                "    \"duration\": \"123\",\n" +
+                "    \"genreIds\": [\"Romance\"],\n" +
+                "    \"director\": \"John\",\n" +
+                "    \"description\": \"a movie\",\n" +
+                "    \"imageUrl\": \"movie1.jpg\",\n" +
+                "    \"rating\": \"8\"\n" +
+                "}";
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.post("/movies")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(movieAsJson))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void should_return_updated_movie_when_update_movie_given_valid_movie_id_and_movie_update_info() throws Exception {
         Movie movie1 = new Movie("movie1",123, new ArrayList<>(),"John","a movie","movie1.jpg","8");
         movieRepository.save(movie1);
