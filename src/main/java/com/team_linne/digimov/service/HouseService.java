@@ -1,5 +1,6 @@
 package com.team_linne.digimov.service;
 
+import com.team_linne.digimov.exception.HouseNotFoundException;
 import com.team_linne.digimov.model.House;
 import com.team_linne.digimov.repository.HouseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,5 +15,9 @@ public class HouseService {
 
     public List<House> getAll() {
         return houseRepository.findAll();
+    }
+
+    public House getById(String id) {
+        return houseRepository.findById(id).orElseThrow(HouseNotFoundException::new);
     }
 }

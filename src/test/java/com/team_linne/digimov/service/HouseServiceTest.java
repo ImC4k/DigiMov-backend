@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -50,5 +51,24 @@ public class HouseServiceTest {
 
         //then
         assertEquals(houseList, actual);
+    }
+
+    @Test
+    void should_return_specific_house_when_get_by_id_given_list_of_houses_and_valid_house_id() {
+        //given
+        House house1 = new House("", "house 1", 200);
+        House house2 = new House("", "house 2", 300);
+        house1.setId("1");
+        house2.setId("2");
+        List<House> houseList = new ArrayList<>();
+        houseList.add(house1);
+        houseList.add(house2);
+        when(houseRepository.findById("1")).thenReturn(Optional.of(house1));
+
+        //when
+        final House actual = houseService.getById("1");
+
+        //then
+        assertEquals(house1, actual);
     }
 }
