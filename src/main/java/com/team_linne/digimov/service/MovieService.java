@@ -2,6 +2,7 @@ package com.team_linne.digimov.service;
 
 import com.team_linne.digimov.exception.MovieNotFoundException;
 import com.team_linne.digimov.model.Movie;
+import com.team_linne.digimov.repository.GenreRepository;
 import com.team_linne.digimov.repository.MovieRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,9 @@ public class MovieService {
     @Autowired
     MovieRepository movieRepository;
 
+    @Autowired
+    GenreRepository genreRepository;
+
     public List<Movie> getAll() {
         return movieRepository.findAll();
     }
@@ -21,6 +25,7 @@ public class MovieService {
     }
 
     public Movie create(Movie movie) {
+        movie.getGenreIds().forEach(id -> genreRepository.findById(id));
         return movieRepository.save(movie);
     }
 
