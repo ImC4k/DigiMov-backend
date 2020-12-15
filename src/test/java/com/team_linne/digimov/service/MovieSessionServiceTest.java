@@ -17,8 +17,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -28,6 +27,8 @@ public class MovieSessionServiceTest {
     private MovieSessionService movieSessionService;
     @Mock
     private MovieSessionRepository movieSessionRepository;
+    @Mock
+    private SeatStatusTimeoutService seatStatusTimeoutService;
 
     @Test
     public void should_return_all_movie_session_when_get_all_given_list_of_movie_session() {
@@ -133,7 +134,7 @@ public class MovieSessionServiceTest {
     }
 
     @Test
-    void should_return_movie_sesison_with_seat_indices_status_updated_when_patch_given_patch_request_valid_and_those_seats_were_available() {
+    void should_return_movie_session_with_seat_indices_status_updated_when_patch_given_patch_request_valid_and_those_seats_were_available() {
         //given
         MovieSessionPatchRequest movieSessionPatchRequest = new MovieSessionPatchRequest(Stream.of(1, 2, 3).collect(Collectors.toList()), "randomClientSessionId");
         Map<String, Double> prices = new HashMap<>();
@@ -161,7 +162,81 @@ public class MovieSessionServiceTest {
     }
 
     @Test
-    void should_throw_InvalidSeatUpdateOperationException_when_patch_given_patch_request_requests_contains_seats_that_are_not_available() {
+    void should_throw_InvalidSeatUpdateOperationException_when_patch_given_patch_request_contains_seats_that_are_sold() {
+        //given
+        MovieSessionPatchRequest movieSessionPatchRequest = new MovieSessionPatchRequest(Stream.of(1, 2, 3).collect(Collectors.toList()), "randomClientSessionId");
+        Map<String, Double> prices = new HashMap<>();
+        prices.put("Student", 50.0);
+        prices.put("Adult", 100.0);
+
+        Map<Integer, SeatStatus> occupied = new HashMap<>();
+        occupied.put(1, new SeatStatus("Sold", null, null));
+        occupied.put(4, new SeatStatus("Sold", null, null));
+        occupied.put(5, new SeatStatus("Sold", null, null));
+
+        MovieSession originalMovieSession = new MovieSession("movieId", "houseId", 1608018488L, prices, occupied);
+        when(movieSessionRepository.findById(originalMovieSession.getId())).thenReturn(Optional.of(originalMovieSession));
+
+        //when
+        Exception exception = assertThrows(InvalidSeatUpdateOperationException.class, () -> movieSessionService.patch(originalMovieSession.getId(), movieSessionPatchRequest));
+
+        //then
+        assertEquals("Invalid seat update operation", exception.getMessage());
+    }
+
+    @Test
+    void should_throw_InvalidSeatUpdateOperationException_when_patch_given_patch_request_contains_seats_that_are_in_mixed_status() {
+        //given
+        MovieSessionPatchRequest movieSessionPatchRequest = new MovieSessionPatchRequest(Stream.of(1, 2, 3).collect(Collectors.toList()), "randomClientSessionId");
+        Map<String, Double> prices = new HashMap<>();
+        prices.put("Student", 50.0);
+        prices.put("Adult", 100.0);
+
+        Map<Integer, SeatStatus> occupied = new HashMap<>();
+        occupied.put(1, new SeatStatus("in process", 123L, "clientId"));
+        occupied.put(4, new SeatStatus("Sold", null, null));
+        occupied.put(5, new SeatStatus("Sold", null, null));
+
+        MovieSession originalMovieSession = new MovieSession("movieId", "houseId", 1608018488L, prices, occupied);
+        when(movieSessionRepository.findById(originalMovieSession.getId())).thenReturn(Optional.of(originalMovieSession));
+
+        //when
+        Exception exception = assertThrows(InvalidSeatUpdateOperationException.class, () -> movieSessionService.patch(originalMovieSession.getId(), movieSessionPatchRequest));
+
+        //then
+        assertEquals("Invalid seat update operation", exception.getMessage());
+    }
+
+    @Test
+    void should_return_updated_movie_session_with_1_2_3_removed_from_occupied_when_patch_given_patch_request_is_1_2_3_and_they_were_in_process_and_client_session_id_is_ok() {
+        //given
+        MovieSessionPatchRequest movieSessionPatchRequest = new MovieSessionPatchRequest(Stream.of(1, 2, 3).collect(Collectors.toList()), "randomClientSessionId");
+        Map<String, Double> prices = new HashMap<>();
+        prices.put("Student", 50.0);
+        prices.put("Adult", 100.0);
+
+        Map<Integer, SeatStatus> occupied = new HashMap<>();
+        occupied.put(1, new SeatStatus("in process", 123L, "randomClientSessionId"));
+        occupied.put(2, new SeatStatus("in process", 123L, "randomClientSessionId"));
+        occupied.put(3, new SeatStatus("in process", 123L, "randomClientSessionId"));
+
+        MovieSession originalMovieSession = new MovieSession("movieId", "houseId", 1608018488L, prices, occupied);
+        when(movieSessionRepository.findById(originalMovieSession.getId())).thenReturn(Optional.of(originalMovieSession));
+
+        //when
+        movieSessionService.patch(originalMovieSession.getId(), movieSessionPatchRequest);
+        ArgumentCaptor<MovieSession> movieSessionArgumentCaptor = ArgumentCaptor.forClass(MovieSession.class);
+        verify(movieSessionRepository, times(1)).save(movieSessionArgumentCaptor.capture());
+
+        //then
+        MovieSession actual = movieSessionArgumentCaptor.getValue();
+        assertFalse(actual.getOccupied().containsKey(1));
+        assertFalse(actual.getOccupied().containsKey(2));
+        assertFalse(actual.getOccupied().containsKey(3));
+    }
+
+    @Test
+    void should_return_updated_movie_session_with_1_2_3_removed_from_occupied_when_patch_given_patch_request_is_1_2_3_and_they_were_in_process_and_some_client_session_id_is_not_ok() {
         //given
         MovieSessionPatchRequest movieSessionPatchRequest = new MovieSessionPatchRequest(Stream.of(1, 2, 3).collect(Collectors.toList()), "randomClientSessionId");
         Map<String, Double> prices = new HashMap<>();
