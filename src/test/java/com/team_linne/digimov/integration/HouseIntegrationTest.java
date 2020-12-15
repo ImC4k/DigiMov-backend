@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -73,6 +74,41 @@ public class HouseIntegrationTest {
     public void should_return_400_bad_request_when_get_house_given_illegal_house_id() throws Exception {
         //when
         mockMvc.perform(MockMvcRequestBuilders.get("/houses/" + "123"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void should_return_created_house_when_create_house_given_complete_new_house_info() throws Exception {
+        Cinema cinema = cinemaRepository.save(new Cinema());
+
+        String houseAsJson = "{\n" +
+                "    \"cinemaId\": \"" + cinema.getId() + "\",\n" +
+                "    \"name\": \"house 1\",\n" +
+                "    \"capacity\": \"200\"\n" +
+                "}";
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.post("/houses")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(houseAsJson))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.cinema.id").value(cinema.getId()))
+                .andExpect(jsonPath("$.name").value("house 1"))
+                .andExpect(jsonPath("$.capacity").value(200));
+    }
+
+    @Test
+    public void should_return_400_bad_request_when_create_house_given_complete_new_house_info_and_illegal_id() throws Exception {
+        String houseAsJson = "{\n" +
+                "    \"cinemaId\": \"123\",\n" +
+                "    \"name\": \"house 1\",\n" +
+                "    \"capacity\": \"200\"\n" +
+                "}";
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.post("/houses")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(houseAsJson))
                 .andExpect(status().isBadRequest());
     }
 }
