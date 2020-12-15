@@ -87,9 +87,7 @@ public class GenreServiceTest {
         //given
         //when
         //then
-        assertThrows(GenreNotFoundException.class, () -> {
-            genreService.getById("999");
-        }, "Genre not found");
+        assertThrows(GenreNotFoundException.class, () -> genreService.getById("999"), "Genre not found");
     }
 
     @Test
@@ -129,9 +127,7 @@ public class GenreServiceTest {
 
         //when
         //then
-        assertThrows(GenreNotFoundException.class, () -> {
-            genreService.update("999", genre);
-        }, "Genre not found");
+        assertThrows(GenreNotFoundException.class, () -> genreService.update("999", genre), "Genre not found");
     }
 
     @Test
@@ -154,9 +150,7 @@ public class GenreServiceTest {
         //given
         //when
         //then
-        assertThrows(GenreNotFoundException.class, () -> {
-            genreService.delete("999");
-        }, "Genre not found");
+        assertThrows(GenreNotFoundException.class, () -> genreService.delete("999"), "Genre not found");
     }
 
     @Test
@@ -165,7 +159,7 @@ public class GenreServiceTest {
         Genre genre = new Genre("Romance");
         genre.setId("1");
         List<String> genreIds = Collections.singletonList(genre.getId());
-        Movie movie = new Movie("movie1",123, genreIds,"John","a movie","movie1.jpg","8", new ArrayList<>(), "Cantonese");
+        Movie movie = new Movie("movie1", 123, genreIds, "John", "a movie", "movie1.jpg", "8", new ArrayList<>(), "Cantonese");
         when(genreRepository.findById(genre.getId())).thenReturn(Optional.of(genre));
 
         //when
