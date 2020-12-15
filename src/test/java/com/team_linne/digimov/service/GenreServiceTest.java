@@ -4,6 +4,7 @@ import com.team_linne.digimov.exception.GenreNotFoundException;
 import com.team_linne.digimov.model.Genre;
 import com.team_linne.digimov.model.Movie;
 import com.team_linne.digimov.repository.GenreRepository;
+import com.team_linne.digimov.repository.MovieRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -11,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +27,11 @@ public class GenreServiceTest {
     private GenreService genreService;
     @Mock
     private GenreRepository genreRepository;
+
+    @Mock
+    private MovieService movieService;
+    @Mock
+    private MovieRepository movieRepository;
 
     @Test
     void should_return_all_genres_when_get_all_given_list_of_genres() {
@@ -145,4 +152,20 @@ public class GenreServiceTest {
         //then
         assertThrows(GenreNotFoundException.class, () -> genreService.delete("999"), "Genre not found");
     }
-}
+  
+    @Test
+    void should_return_movie_without_genre_when_delete_genre_given_movie_with_genre_id() {
+        //given
+        Genre genre = new Genre("Romance");
+        genre.setId("1");
+        List<String> genreIds = Collections.singletonList(genre.getId());
+        Movie movie = new Movie("movie1",123, genreIds,"John","a movie","movie1.jpg","8", new ArrayList<>(), "Cantonese");
+        when(genreRepository.findById(genre.getId())).thenReturn(Optional.of(genre));
+
+        //when
+        genreService.delete(genre.getId());
+
+        //then
+        verify(movieService, times(1)).deleteGenreId("1");
+    }
+
