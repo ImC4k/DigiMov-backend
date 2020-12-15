@@ -111,4 +111,23 @@ public class HouseIntegrationTest {
                 .content(houseAsJson))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    public void should_return_created_incomplete_house_when_create_house_given_incomplete_new_house_info() throws Exception {
+        Cinema cinema = cinemaRepository.save(new Cinema());
+
+        String houseAsJson = "{\n" +
+                "    \"cinemaId\": \"" + cinema.getId() + "\",\n" +
+                "    \"name\": \"house 1\"\n" +
+                "}";
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.post("/houses")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(houseAsJson))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.cinema.id").value(cinema.getId()))
+                .andExpect(jsonPath("$.name").value("house 1"))
+                .andExpect(jsonPath("$.capacity").isEmpty());
+    }
 }
