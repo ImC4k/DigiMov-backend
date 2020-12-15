@@ -43,4 +43,6 @@ public class MovieSessionController {
     public MovieSessionResponse update(@PathVariable String id, @RequestBody MovieSessionRequest movieSessionUpdate) {
         return movieSessionMapper.toResponse(movieSessionService.update(id, movieSessionMapper.toEntity(movieSessionUpdate)));
     }
+
+
 }

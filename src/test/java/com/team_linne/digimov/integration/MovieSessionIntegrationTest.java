@@ -190,4 +190,32 @@ public class MovieSessionIntegrationTest {
                 .andExpect(jsonPath("$.occupied").isMap());
     }
 
+    @Test
+    public void should_return_404_not_found_when_update_movie_session_given_invalid_movie_session_id_and_movie_session_update_info() throws Exception {
+        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        movieSessionRepository.insert(movieSession1);
+
+        String movieSessionAsJson = "{\n" +
+                "    \"movieId\": \"mov1\",\n" +
+                "    \"houseId\": \"house1\",\n" +
+                "    \"startTime\": 10000,\n" +
+                "    \"prices\": {\n" +
+                "        \"Elderly\": 25.0,\n" +
+                "        \"Adult\": 100.0\n" +
+                "    },\n" +
+                "    \"occupied\": {\n" +
+                "        \"1\" : {\n" +
+                "            \"status\": \"Sold\",\n" +
+                "            \"processStartTime\": 1000,\n" +
+                "            \"clientSessionId\": \"r32rewfge\"\n" +
+                "        }\n" +
+                "    }\n" +
+                "}";
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/moviesessions/" + "5fc8913234ba53396c26a863")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(movieSessionAsJson))
+                .andExpect(status().isNotFound());
+    }
+
 }
