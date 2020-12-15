@@ -1,19 +1,21 @@
 package com.team_linne.digimov.service;
 
+import com.team_linne.digimov.dto.MovieSessionPatchRequest;
+import com.team_linne.digimov.exception.InvalidSeatUpdateOperationException;
 import com.team_linne.digimov.exception.MovieNotFoundException;
 import com.team_linne.digimov.model.MovieSession;
 import com.team_linne.digimov.model.SeatStatus;
 import com.team_linne.digimov.repository.MovieSessionRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -118,7 +120,7 @@ public class MovieSessionServiceTest {
     }
 
     @Test
-    public void should_throw_MovieSessionNotFoundException_when_update_given_invalid_movie_session_id() {
+    void should_throw_MovieSessionNotFoundException_when_update_given_invalid_movie_session_id() {
         //given
         MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
         movieSession1.setId("1");
@@ -130,6 +132,56 @@ public class MovieSessionServiceTest {
         }, "Movie not found");
     }
 
+    @Test
+    void should_return_movie_sesison_with_seat_indices_status_updated_when_patch_given_patch_request_valid_and_those_seats_were_available() {
+        //given
+        MovieSessionPatchRequest movieSessionPatchRequest = new MovieSessionPatchRequest(Stream.of(1, 2, 3).collect(Collectors.toList()), "randomClientSessionId");
+        Map<String, Double> prices = new HashMap<>();
+        prices.put("Student", 50.0);
+        prices.put("Adult", 100.0);
+
+        Map<Integer, SeatStatus> occupied = new HashMap<>();
+        occupied.put(4, new SeatStatus("Sold", null, null));
+        occupied.put(5, new SeatStatus("Sold", null, null));
+
+        MovieSession originalMovieSession = new MovieSession("movieId", "houseId", 1608018488L, prices, occupied);
+        when(movieSessionRepository.findById(originalMovieSession.getId())).thenReturn(Optional.of(originalMovieSession));
+
+        //when
+        movieSessionService.patch(originalMovieSession.getId(), movieSessionPatchRequest);
+        ArgumentCaptor<MovieSession> movieSessionArgumentCaptor = ArgumentCaptor.forClass(MovieSession.class);
+        verify(movieSessionRepository, times(1)).save(movieSessionArgumentCaptor.capture());
+
+
+        //then
+        final MovieSession actual = movieSessionArgumentCaptor.getValue();
+        assertEquals("in process", actual.getOccupied().get(1).getStatus());
+        assertEquals("in process", actual.getOccupied().get(2).getStatus());
+        assertEquals("in process", actual.getOccupied().get(3).getStatus());
+    }
+
+    @Test
+    void should_throw_InvalidSeatUpdateOperationException_when_patch_given_patch_request_requests_contains_seats_that_are_not_available() {
+        //given
+        MovieSessionPatchRequest movieSessionPatchRequest = new MovieSessionPatchRequest(Stream.of(1, 2, 3).collect(Collectors.toList()), "randomClientSessionId");
+        Map<String, Double> prices = new HashMap<>();
+        prices.put("Student", 50.0);
+        prices.put("Adult", 100.0);
+
+        Map<Integer, SeatStatus> occupied = new HashMap<>();
+        occupied.put(1, new SeatStatus("Sold", null, null));
+        occupied.put(4, new SeatStatus("Sold", null, null));
+        occupied.put(5, new SeatStatus("Sold", null, null));
+
+        MovieSession originalMovieSession = new MovieSession("movieId", "houseId", 1608018488L, prices, occupied);
+        when(movieSessionRepository.findById(originalMovieSession.getId())).thenReturn(Optional.of(originalMovieSession));
+
+        //when
+        Exception exception = assertThrows(InvalidSeatUpdateOperationException.class, () -> movieSessionService.patch(originalMovieSession.getId(), movieSessionPatchRequest));
+
+        //then
+        assertEquals("Invalid seat update operation", exception.getMessage());
+    }
 
     @Test
     void should_delete_movie_session_when_delete_movie_session_given_valid_movie_session_id() {

@@ -1,9 +1,6 @@
 package com.team_linne.digimov.controller;
 
-import com.team_linne.digimov.dto.MovieRequest;
-import com.team_linne.digimov.dto.MovieResponse;
-import com.team_linne.digimov.dto.MovieSessionRequest;
-import com.team_linne.digimov.dto.MovieSessionResponse;
+import com.team_linne.digimov.dto.*;
 import com.team_linne.digimov.mapper.MovieSessionMapper;
 import com.team_linne.digimov.service.MovieSessionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +39,11 @@ public class MovieSessionController {
     @PutMapping("/{id}")
     public MovieSessionResponse update(@PathVariable String id, @RequestBody MovieSessionRequest movieSessionUpdate) {
         return movieSessionMapper.toResponse(movieSessionService.update(id, movieSessionMapper.toEntity(movieSessionUpdate)));
+    }
+
+    @PatchMapping("/{id}")
+    public MovieSessionResponse patchSeatIndices(@PathVariable String id, @RequestBody MovieSessionPatchRequest movieSessionPatchRequest) {
+        return null;
     }
 
     @DeleteMapping("/{id}")
