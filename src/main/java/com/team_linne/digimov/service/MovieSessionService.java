@@ -28,4 +28,9 @@ public class MovieSessionService {
         movieSessionUpdate.setId(movieSession.getId());
         return this.movieSessionRepository.save(movieSessionUpdate);
     }
+
+    public void delete(String id) {
+        MovieSession movieSession = this.getById(id);
+        this.movieSessionRepository.deleteById(movieSession.getId());
+    }
 }

@@ -18,7 +18,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class MovieSessionServiceTest {
@@ -130,6 +130,20 @@ public class MovieSessionServiceTest {
         }, "Movie not found");
     }
 
+
+    @Test
+    void should_delete_movie_session_when_delete_movie_session_given_valid_movie_session_id() {
+        //given
+        MovieSession movieSession1 = new MovieSession("111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        movieSession1.setId("1");
+        when(movieSessionRepository.findById("1")).thenReturn(Optional.of(movieSession1));
+
+        //when
+        movieSessionService.delete("1");
+
+        //then
+        verify(movieSessionRepository, times(1)).deleteById("1");
+    }
 
 
 
