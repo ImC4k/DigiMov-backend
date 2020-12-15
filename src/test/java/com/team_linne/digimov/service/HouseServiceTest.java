@@ -1,5 +1,7 @@
 package com.team_linne.digimov.service;
 
+import com.team_linne.digimov.exception.GenreNotFoundException;
+import com.team_linne.digimov.exception.HouseNotFoundException;
 import com.team_linne.digimov.model.Genre;
 import com.team_linne.digimov.model.House;
 import com.team_linne.digimov.repository.HouseRepository;
@@ -14,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -70,5 +73,13 @@ public class HouseServiceTest {
 
         //then
         assertEquals(house1, actual);
+    }
+
+    @Test
+    void should_throw_house_not_found_exception_when_get_by_id_given_list_of_houses_and_invalid_house_id() {
+        //given
+        //when
+        //then
+        assertThrows(HouseNotFoundException.class, () -> houseService.getById("999"), "House not found");
     }
 }
