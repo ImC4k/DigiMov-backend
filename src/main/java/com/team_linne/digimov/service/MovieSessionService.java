@@ -13,4 +13,8 @@ public class MovieSessionService {
     public List<MovieSession> getAll() {
         return this.movieSessionRepository.findAll();
     }
+
+    public MovieSession getById(String id) {
+        return this.movieSessionRepository.findById(id).orElse(null);
+    }
 }

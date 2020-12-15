@@ -1,5 +1,6 @@
 package com.team_linne.digimov.service;
 
+import com.team_linne.digimov.exception.MovieNotFoundException;
 import com.team_linne.digimov.model.MovieSession;
 import com.team_linne.digimov.model.SeatStatus;
 import com.team_linne.digimov.repository.MovieSessionRepository;
@@ -12,8 +13,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,6 +55,26 @@ public class MovieSessionServiceTest {
         //then
         assertEquals(movieSessionList, actual);
     }
-    
+
+    @Test
+    void should_return_specific_movie_session_when_get_by_id_given_list_of_movie_session_and_valid_movie_session_id() {
+        //given
+        MovieSession movieSession1 = new MovieSession("111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        MovieSession movieSession2 = new MovieSession("222", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+
+        movieSession1.setId("1");
+        movieSession2.setId("2");
+
+        List<MovieSession> movieSessionList = new ArrayList<>();
+        movieSessionList.add(movieSession1);
+        movieSessionList.add(movieSession2);
+        when(movieSessionRepository.findById("1")).thenReturn(Optional.of(movieSession1));
+
+        //when
+        final MovieSession actual = movieSessionService.getById("1");
+
+        //then
+        assertEquals(movieSession1, actual);
+    }
 
 }
