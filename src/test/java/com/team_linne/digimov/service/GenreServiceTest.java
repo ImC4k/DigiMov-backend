@@ -152,14 +152,14 @@ public class GenreServiceTest {
         //then
         assertThrows(GenreNotFoundException.class, () -> genreService.delete("999"), "Genre not found");
     }
-  
+
     @Test
     void should_return_movie_without_genre_when_delete_genre_given_movie_with_genre_id() {
         //given
         Genre genre = new Genre("Romance");
         genre.setId("1");
         List<String> genreIds = Collections.singletonList(genre.getId());
-        Movie movie = new Movie("movie1",123, genreIds,"John","a movie","movie1.jpg","8", new ArrayList<>(), "Cantonese");
+        Movie movie = new Movie("movie1", 123, genreIds, "John", "a movie", "movie1.jpg", "8", new ArrayList<>(), "Cantonese");
         when(genreRepository.findById(genre.getId())).thenReturn(Optional.of(genre));
 
         //when
@@ -168,4 +168,4 @@ public class GenreServiceTest {
         //then
         verify(movieService, times(1)).deleteGenreId("1");
     }
-
+}
