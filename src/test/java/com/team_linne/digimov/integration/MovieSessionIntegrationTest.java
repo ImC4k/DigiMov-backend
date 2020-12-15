@@ -99,7 +99,7 @@ public class MovieSessionIntegrationTest {
 
     @Test
     public void should_return_created_movie_session_when_create_movie_session_given_complete_new_movie_session_info() throws Exception {
-        String movieAsJson = "{\n" +
+        String movieSessionAsJson = "{\n" +
                 "    \"movieId\": \"mov1\",\n" +
                 "    \"houseId\": \"house1\",\n" +
                 "    \"startTime\": 10000,\n" +
@@ -119,7 +119,7 @@ public class MovieSessionIntegrationTest {
         //when
         mockMvc.perform(MockMvcRequestBuilders.post("/moviesessions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(movieAsJson))
+                .content(movieSessionAsJson))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").isString())
                 .andExpect(jsonPath("$.movieId").value("mov1"))
@@ -128,4 +128,30 @@ public class MovieSessionIntegrationTest {
                 .andExpect(jsonPath("$.prices").isMap())
                 .andExpect(jsonPath("$.occupied").isMap());
     }
+
+    @Test
+    public void should_return_created_incompleted_movie_session_when_create_movie_session_given_incomplete_new_movie_session_info() throws Exception {
+        String movieSessionAsJson = "{\n" +
+                "    \"movieId\": \"mov1\",\n" +
+                "    \"houseId\": \"house1\",\n" +
+                "    \"prices\": {\n" +
+                "        \"Elderly\": 25.0,\n" +
+                "        \"Adult\": 100.0\n" +
+                "    }\n" +
+                "}";
+
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.post("/moviesessions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(movieSessionAsJson))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").isString())
+                .andExpect(jsonPath("$.movieId").value("mov1"))
+                .andExpect(jsonPath("$.houseId").value("house1"))
+                .andExpect(jsonPath("$.startTime").isEmpty())
+                .andExpect(jsonPath("$.prices").isMap())
+                .andExpect(jsonPath("$.occupied").isEmpty());
+    }
+
 }
