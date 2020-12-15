@@ -164,7 +164,7 @@ public class MovieServiceTest {
     void should_call_update_2_time_when_delete_genre_id_given_2_movies_originally_contained_test_id() {
         Movie movie1 = new Movie("movie1",123, Stream.of("1", "2").collect(Collectors.toList()), "John","a movie","movie1.jpg","8", new ArrayList<>(), "Cantonese");
         Movie movie2 = new Movie("movie2",123, Stream.of("1", "2").collect(Collectors.toList()),"John","a movie","movie1.jpg","8", new ArrayList<>(), "Cantonese");
-        when(movieRepository.findAllByGenreId(anyString())).thenReturn(Stream.of(movie1, movie2).collect(Collectors.toList()));
+        when(movieRepository.findAllByGenreIdsIn(any())).thenReturn(Stream.of(movie1, movie2).collect(Collectors.toList()));
 
         // when
         movieService.deleteGenreId("1");
