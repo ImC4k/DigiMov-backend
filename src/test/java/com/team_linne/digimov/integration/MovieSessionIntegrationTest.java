@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -96,4 +97,35 @@ public class MovieSessionIntegrationTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    public void should_return_created_movie_session_when_create_movie_session_given_complete_new_movie_session_info() throws Exception {
+        String movieAsJson = "{\n" +
+                "    \"movieId\": \"mov1\",\n" +
+                "    \"houseId\": \"house1\",\n" +
+                "    \"startTime\": 10000,\n" +
+                "    \"prices\": {\n" +
+                "        \"Elderly\": 25.0,\n" +
+                "        \"Adult\": 100.0\n" +
+                "    },\n" +
+                "    \"occupied\": {\n" +
+                "        \"1\" : {\n" +
+                "            \"status\": \"Sold\",\n" +
+                "            \"processStartTime\": 1000,\n" +
+                "            \"clientSessionId\": \"r32rewfge\"\n" +
+                "        }\n" +
+                "    }\n" +
+                "}";
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.post("/moviesessions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(movieAsJson))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").isString())
+                .andExpect(jsonPath("$.movieId").value("mov1"))
+                .andExpect(jsonPath("$.houseId").value("house1"))
+                .andExpect(jsonPath("$.startTime").value(10000L))
+                .andExpect(jsonPath("$.prices").isMap())
+                .andExpect(jsonPath("$.occupied").isMap());
+    }
 }
