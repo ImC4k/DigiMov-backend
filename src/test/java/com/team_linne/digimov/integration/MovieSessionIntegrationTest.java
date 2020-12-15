@@ -58,4 +58,28 @@ public class MovieSessionIntegrationTest {
                 .andExpect(jsonPath("$[0].occupied").isMap());
     }
 
+    @Test
+    public void should_return_specific_movie_session_when_get_movie_session_given_valid_movie_session_id() throws Exception {
+        Map<String, Double> prices = new HashMap<>();
+        prices.put("Student", 50.0);
+        prices.put("Adult", 100.0);
+
+        Map<Integer, SeatStatus> occupied = new HashMap<>();
+        occupied.put(1, new SeatStatus("Available", 10000L, "555"));
+        occupied.put(2, new SeatStatus("Sold", 10000L, "555"));
+
+        MovieSession movieSession = new MovieSession("mov1", "123", 10000L, prices, occupied);
+
+        movieSessionRepository.save(movieSession);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/moviesessions/" + movieSession.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isString())
+                .andExpect(jsonPath("$.movieId").value("mov1"))
+                .andExpect(jsonPath("$.houseId").value("123"))
+                .andExpect(jsonPath("$.startTime").value(10000L))
+                .andExpect(jsonPath("$.prices").isMap())
+                .andExpect(jsonPath("$.occupied").isMap());
+    }
+
 }
