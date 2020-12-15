@@ -82,4 +82,12 @@ public class MovieSessionIntegrationTest {
                 .andExpect(jsonPath("$.occupied").isMap());
     }
 
+    @Test
+    public void should_return_404_not_found_when_get_movie_session_given_invalid_session_id() throws Exception {
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.get("/movies/" + "5fc8913234ba53396c26a863"))
+                .andExpect(status().isNotFound());
+    }
+
+
 }
