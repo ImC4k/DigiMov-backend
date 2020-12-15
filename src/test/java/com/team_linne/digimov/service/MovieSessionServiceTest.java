@@ -17,6 +17,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -98,7 +99,23 @@ public class MovieSessionServiceTest {
         assertEquals(movieSession, actual);
     }
 
+    @Test
+    void should_return_updated_movie_session_when_update_movie_session_given_movie_session_id_and_updated_movie_session_info() {
+        //given
+        MovieSession movieSession1 = new MovieSession("111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        MovieSession movieSession2 = new MovieSession("222", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
 
+        movieSession1.setId("1");
+
+        when(movieSessionRepository.findById("1")).thenReturn(Optional.of(movieSession1));
+        when(movieSessionRepository.save(any(MovieSession.class))).thenReturn(movieSession2);
+
+        //when
+        final MovieSession actual = movieSessionService.update("1", movieSession2);
+
+        //then
+        assertEquals(movieSession2, actual);
+    }
 
 
 
