@@ -145,6 +145,11 @@ public class MovieSessionServiceTest {
         verify(movieSessionRepository, times(1)).deleteById("1");
     }
 
-
+    @Test
+    void should_throw_MovieSessionNotFoundException_when_delete_movie_session_given_invalid_movie_session_id() {
+        assertThrows(MovieNotFoundException.class, () -> {
+            movieSessionService.delete("999");
+        }, "Movie not found");
+    }
 
 }
