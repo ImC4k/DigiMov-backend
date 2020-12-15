@@ -38,4 +38,17 @@ public class HouseServiceTest {
         //then
         assertEquals(houseList, actual);
     }
+
+    @Test
+    void should_return_empty_array_when_get_all_given_no_houses() {
+        //given
+        List<House> houseList = new ArrayList<>();
+        when(houseRepository.findAll()).thenReturn(houseList);
+
+        //when
+        final List<House> actual = houseService.getAll();
+
+        //then
+        assertEquals(houseList, actual);
+    }
 }
