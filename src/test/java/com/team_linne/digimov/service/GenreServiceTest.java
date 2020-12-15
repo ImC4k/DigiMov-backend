@@ -87,9 +87,7 @@ public class GenreServiceTest {
         //given
         //when
         //then
-        assertThrows(GenreNotFoundException.class, () -> {
-            genreService.getById("999");
-        }, "Genre not found");
+        assertThrows(GenreNotFoundException.class, () -> genreService.getById("999"), "Genre not found");
     }
 
     @Test
@@ -129,9 +127,7 @@ public class GenreServiceTest {
 
         //when
         //then
-        assertThrows(GenreNotFoundException.class, () -> {
-            genreService.update("999", genre);
-        }, "Genre not found");
+        assertThrows(GenreNotFoundException.class, () -> genreService.update("999", genre), "Genre not found");
     }
 
     @Test
@@ -154,11 +150,9 @@ public class GenreServiceTest {
         //given
         //when
         //then
-        assertThrows(GenreNotFoundException.class, () -> {
-            genreService.delete("999");
-        }, "Genre not found");
+        assertThrows(GenreNotFoundException.class, () -> genreService.delete("999"), "Genre not found");
     }
-
+  
     @Test
     void should_return_movie_without_genre_when_delete_genre_given_movie_with_genre_id() {
         //given
@@ -174,4 +168,4 @@ public class GenreServiceTest {
         //then
         verify(movieService, times(1)).deleteGenreId("1");
     }
-}
+
