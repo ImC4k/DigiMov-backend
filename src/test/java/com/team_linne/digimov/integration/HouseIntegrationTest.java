@@ -13,6 +13,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.ArrayList;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -132,7 +134,7 @@ public class HouseIntegrationTest {
     }
 
     @Test
-    public void should_return_updated_house_when_update_house_given_valid_movie_id_and_house_update_info() throws Exception {
+    public void should_return_updated_house_when_update_house_given_valid_house_id_and_house_update_info() throws Exception {
         Cinema cinema = cinemaRepository.save(new Cinema());
         House house1 = new House(cinema.getId(), "house 1", 200);
         houseRepository.save(house1);
@@ -154,7 +156,7 @@ public class HouseIntegrationTest {
     }
 
     @Test
-    public void should_return_404_not_found_when_update_house_given_invalid_movie_id_and_house_update_info() throws Exception {
+    public void should_return_404_not_found_when_update_house_given_invalid_house_id_and_house_update_info() throws Exception {
         Cinema cinema = cinemaRepository.save(new Cinema());
         House house1 = new House(cinema.getId(), "house 1", 200);
         houseRepository.save(house1);
@@ -173,7 +175,7 @@ public class HouseIntegrationTest {
     }
 
     @Test
-    public void should_return_400_bad_request_when_update_house_given_illegal_movie_id_and_house_update_info() throws Exception {
+    public void should_return_400_bad_request_when_update_house_given_illegal_house_id_and_house_update_info() throws Exception {
         Cinema cinema = cinemaRepository.save(new Cinema());
         House house1 = new House(cinema.getId(), "house 1", 200);
         houseRepository.save(house1);
@@ -188,6 +190,39 @@ public class HouseIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.put("/houses/123")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(houseAsJson))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void should_delete_house_when_delete_house_given_valid_house_id() throws Exception {
+        Cinema cinema = cinemaRepository.save(new Cinema());
+        House house1 = new House(cinema.getId(), "house 1", 200);
+        houseRepository.save(house1);
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.delete("/houses/" + house1.getId()))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void should_return_404_not_found_when_delete_house_given_invalid_house_id() throws Exception {
+        Cinema cinema = cinemaRepository.save(new Cinema());
+        House house1 = new House(cinema.getId(), "house 1", 200);
+        houseRepository.save(house1);
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.delete("/houses/" + "5fc8913234ba53396c26a863"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void should_return_400_bad_request_when_delete_house_given_illegal_house_id() throws Exception {
+        Cinema cinema = cinemaRepository.save(new Cinema());
+        House house1 = new House(cinema.getId(), "house 1", 200);
+        houseRepository.save(house1);
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.delete("/houses/" + "123"))
                 .andExpect(status().isBadRequest());
     }
 }
