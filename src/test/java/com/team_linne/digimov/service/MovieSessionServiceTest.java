@@ -117,6 +117,20 @@ public class MovieSessionServiceTest {
         assertEquals(movieSession2, actual);
     }
 
+    @Test
+    public void should_throw_MovieSessionNotFoundException_when_update_given_invalid_movie_session_id() {
+        //given
+        MovieSession movieSession1 = new MovieSession("111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        movieSession1.setId("1");
+
+        //when
+        //then
+        assertThrows(MovieNotFoundException.class, () -> {
+            movieSessionService.update("999", movieSession1);
+        }, "Movie not found");
+    }
+
+
 
 
 }
