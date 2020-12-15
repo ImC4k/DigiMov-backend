@@ -30,4 +30,9 @@ public class HouseService {
         houseUpdate.setId(id);
         return this.create(houseUpdate);
     }
+
+    public void delete(String id) {
+        House house = this.getById(id);
+        houseRepository.deleteById(id);
+    }
 }

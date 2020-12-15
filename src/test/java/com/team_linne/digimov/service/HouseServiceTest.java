@@ -1,8 +1,8 @@
 package com.team_linne.digimov.service;
 
-import com.team_linne.digimov.exception.GenreNotFoundException;
 import com.team_linne.digimov.exception.HouseNotFoundException;
-import com.team_linne.digimov.model.Genre;
+import com.team_linne.digimov.exception.HouseNotFoundException;
+import com.team_linne.digimov.model.House;
 import com.team_linne.digimov.model.House;
 import com.team_linne.digimov.repository.HouseRepository;
 import org.junit.jupiter.api.Test;
@@ -18,7 +18,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class HouseServiceTest {
@@ -122,5 +122,28 @@ public class HouseServiceTest {
         //when
         //then
         assertThrows(HouseNotFoundException.class, () -> houseService.update("999", house), "House not found");
+    }
+
+    @Test
+    void should_delete_house_when_delete_house_given_valid_house_id() {
+        //given
+        House house = new House("", "house 1", 200);
+        house.setId("1");
+
+        when(houseRepository.findById("1")).thenReturn(Optional.of(house));
+
+        //when
+        houseService.delete("1");
+
+        //then
+        verify(houseRepository, times(1)).deleteById("1");
+    }
+
+    @Test
+    void should_throw_house_not_found_exception_when_delete_house_given_invalid_house_id() {
+        //given
+        //when
+        //then
+        assertThrows(HouseNotFoundException.class, () -> houseService.delete("999"), "House not found");
     }
 }
