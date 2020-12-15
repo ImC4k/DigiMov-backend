@@ -31,4 +31,31 @@ public class MovieSessionIntegrationTest {
         movieSessionRepository.deleteAll();
     }
 
+    @Test
+    public void should_return_all_movie_session_when_get_all_given_movie_session_list() throws Exception {
+        //given
+        Map<String, Double> prices = new HashMap<>();
+        prices.put("Student", 50.0);
+        prices.put("Adult", 100.0);
+
+        Map<Integer, SeatStatus> occupied = new HashMap<>();
+        occupied.put(1, new SeatStatus("Available", 10000L, "555"));
+        occupied.put(2, new SeatStatus("Sold", 10000L, "555"));
+
+        MovieSession movieSession = new MovieSession("mov1", "123", 10000L, prices, occupied);
+
+        movieSessionRepository.save(movieSession);
+
+        //when
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.get("/moviesessions"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").isString())
+                .andExpect(jsonPath("$[0].movieId").value("mov1"))
+                .andExpect(jsonPath("$[0].houseId").value("123"))
+                .andExpect(jsonPath("$[0].startTime").value(10000L))
+                .andExpect(jsonPath("$[0].prices").isMap())
+                .andExpect(jsonPath("$[0].occupied").isMap());
+    }
+
 }
