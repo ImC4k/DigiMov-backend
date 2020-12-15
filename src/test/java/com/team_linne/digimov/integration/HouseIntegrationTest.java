@@ -130,4 +130,64 @@ public class HouseIntegrationTest {
                 .andExpect(jsonPath("$.name").value("house 1"))
                 .andExpect(jsonPath("$.capacity").isEmpty());
     }
+
+    @Test
+    public void should_return_updated_house_when_update_house_given_valid_movie_id_and_house_update_info() throws Exception {
+        Cinema cinema = cinemaRepository.save(new Cinema());
+        House house1 = new House(cinema.getId(), "house 1", 200);
+        houseRepository.save(house1);
+
+        String houseAsJson = "{\n" +
+                "    \"cinemaId\": \"" + cinema.getId() + "\",\n" +
+                "    \"name\": \"house 2\",\n" +
+                "    \"capacity\": \"300\"\n" +
+                "}";
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.put("/houses/"+house1.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(houseAsJson))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.cinema.id").value(cinema.getId()))
+                .andExpect(jsonPath("$.name").value("house 2"))
+                .andExpect(jsonPath("$.capacity").value(300));
+    }
+
+    @Test
+    public void should_return_404_not_found_when_update_house_given_invalid_movie_id_and_house_update_info() throws Exception {
+        Cinema cinema = cinemaRepository.save(new Cinema());
+        House house1 = new House(cinema.getId(), "house 1", 200);
+        houseRepository.save(house1);
+
+        String houseAsJson = "{\n" +
+                "    \"cinemaId\": \"" + cinema.getId() + "\",\n" +
+                "    \"name\": \"house 2\",\n" +
+                "    \"capacity\": \"300\"\n" +
+                "}";
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.put("/houses/5fc8913234ba53396c26a863")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(houseAsJson))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void should_return_400_bad_request_when_update_house_given_illegal_movie_id_and_house_update_info() throws Exception {
+        Cinema cinema = cinemaRepository.save(new Cinema());
+        House house1 = new House(cinema.getId(), "house 1", 200);
+        houseRepository.save(house1);
+
+        String houseAsJson = "{\n" +
+                "    \"cinemaId\": \"" + cinema.getId() + "\",\n" +
+                "    \"name\": \"house 2\",\n" +
+                "    \"capacity\": \"300\"\n" +
+                "}";
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.put("/houses/123")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(houseAsJson))
+                .andExpect(status().isBadRequest());
+    }
 }
