@@ -14,6 +14,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -150,5 +152,22 @@ public class HouseServiceTest {
         //when
         //then
         assertThrows(HouseNotFoundException.class, () -> houseService.delete("999"), "House not found");
+    }
+
+    @Test
+    void should_delete_twice_when_delete_cinema_id_given_2_houses_originally_contained_cinema_id() {
+        //given
+        House house1 = new House("1", "house 1", 200);
+        House house2 = new House("1", "house 2", 300);
+        when(houseRepository.findByCinemaId(any())).thenReturn(Stream.of(house1, house2).collect(Collectors.toList()));
+        house1.setId("1");
+        house2.setId("2");
+        when(houseRepository.findById(house1.getId())).thenReturn(Optional.of(house1));
+        when(houseRepository.findById(house2.getId())).thenReturn(Optional.of(house2));
+        //when
+        houseService.deleteCinemaId("1");
+
+        //then
+        verify(houseRepository, times(2)).deleteById(any());
     }
 }
