@@ -18,7 +18,6 @@ public class OrderRequest {
     private List<Integer> bookedSeatIndices;
     private Map<String,Integer> customerGroupQuantityMap;
     private String email;
-    private String userId;
     private CreditCardInfo creditCardInfo;
     private String clientSessionId;
 }

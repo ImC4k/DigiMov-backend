@@ -12,8 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,7 +34,7 @@ public class OrderServiceTest {
         Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
         customerGroupQuantityMap.put("Adults", 2);
         customerGroupQuantityMap.put("Student", 1);
-        Order order = new Order("abc@bbc.com", "20998372", "32", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
+        Order order = new Order("abc@bbc.com", "32", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
         List<Order> orderList = new ArrayList<>();
         orderList.add(order);
         when(orderRepository.findAll()).thenReturn(orderList);
@@ -66,8 +65,8 @@ public class OrderServiceTest {
         Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
         customerGroupQuantityMap.put("Adults", 2);
         customerGroupQuantityMap.put("Student", 1);
-        Order order1 = new Order("abc@bbc.com", "20998372", "32", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
-        Order order2 = new Order("cbd@bbc.com", "35432312", "31", Arrays.asList(15, 16), customerGroupQuantityMap, "5105105105105100");
+        Order order1 = new Order("abc@bbc.com", "32", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
+        Order order2 = new Order("cbd@bbc.com", "31", Arrays.asList(15, 16), customerGroupQuantityMap, "5105105105105100");
         order1.setId("1");
         order2.setId("2");
         List<Order> orderList = new ArrayList<>();
@@ -98,7 +97,7 @@ public class OrderServiceTest {
         Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
         customerGroupQuantityMap.put("Adults", 2);
         customerGroupQuantityMap.put("Student", 1);
-        Order order = new Order("abc@bbc.com", "20998372", "32", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
+        Order order = new Order("abc@bbc.com", "32", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
         order.setId("1");
         when(orderRepository.findById("1")).thenReturn(Optional.of(order));
 
@@ -136,7 +135,7 @@ public class OrderServiceTest {
         Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
         customerGroupQuantityMap.put("Adult", 2);
         customerGroupQuantityMap.put("Student", 1);
-        Order order = new Order("abc@bbc.com", "20998372", "1", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
+        Order order = new Order("abc@bbc.com", "1", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
         when(orderRepository.save(order)).thenReturn(order);
         when(movieSessionRepository.findById("1")).thenReturn(Optional.of(movieSession1));
         //when
@@ -162,7 +161,7 @@ public class OrderServiceTest {
         movieSession1.setId("1");
         Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
         customerGroupQuantityMap.put("Adult", 2);
-        Order order = new Order("abc@bbc.com", "20998372", "1", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
+        Order order = new Order("abc@bbc.com", "1", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
         when(movieSessionRepository.findById("1")).thenReturn(Optional.of(movieSession1));
         //when
         //then
@@ -178,7 +177,7 @@ public class OrderServiceTest {
         String clientSessionId = "123456";
         Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
         customerGroupQuantityMap.put("Adult", 2);
-        Order order = new Order("abc@bbc.com", "20998372", "1", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
+        Order order = new Order("abc@bbc.com", "1", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
 
         //when
         //then
@@ -201,7 +200,7 @@ public class OrderServiceTest {
         movieSession1.setId("1");
         Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
         customerGroupQuantityMap.put("Adult", 2);
-        Order order = new Order("abc@bbc.com", "20998372", "1", Arrays.asList(14, 15), customerGroupQuantityMap, "123");
+        Order order = new Order("abc@bbc.com", "1", Arrays.asList(14, 15), customerGroupQuantityMap, "123");
         when(movieSessionRepository.findById("1")).thenReturn(Optional.of(movieSession1));
         //when
         //then
@@ -224,7 +223,7 @@ public class OrderServiceTest {
         movieSession1.setId("1");
         Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
         customerGroupQuantityMap.put("Adult", 2);
-        Order order = new Order("abc@bbc.com", "20998372", "1", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
+        Order order = new Order("abc@bbc.com", "1", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
         when(movieSessionRepository.findById("1")).thenReturn(Optional.of(movieSession1));
         //when
         //then
@@ -249,7 +248,7 @@ public class OrderServiceTest {
         movieSession1.setId("1");
         Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
         customerGroupQuantityMap.put("Adult", 2);
-        Order order = new Order("abc@bbc.com", "20998372", "1", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
+        Order order = new Order("abc@bbc.com", "1", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
         when(movieSessionRepository.findById("1")).thenReturn(Optional.of(movieSession1));
         //when
         //then
@@ -273,7 +272,7 @@ public class OrderServiceTest {
         movieSession1.setId("1");
         Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
         customerGroupQuantityMap.put("Adult", 2);
-        Order order = new Order("abc@bbc.com", "20998372", "1", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
+        Order order = new Order("abc@bbc.com", "1", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
         when(movieSessionRepository.findById("1")).thenReturn(Optional.of(movieSession1));
         //when
         //then
@@ -283,7 +282,7 @@ public class OrderServiceTest {
     }
 
     @Test
-    void should_return_updated_order_when_update_order_given_valid_order_id_and_order_update_info() {
+    void should_return_updated_order_and_update_seat_status_when_update_order_given_valid_order_id_and_order_update_info() {
         ExpiryDate expiryDate = new ExpiryDate("4", "2043");
         CreditCardInfo creditCardInfo = new CreditCardInfo("5105105105105100", expiryDate, 406, "Jackie");
         String clientSessionId = "123456";
@@ -299,16 +298,22 @@ public class OrderServiceTest {
         Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
         customerGroupQuantityMap.put("Adult", 2);
         customerGroupQuantityMap.put("Student", 1);
-        Order order = new Order("abc@bbc.com", "20998372", "1", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
+        Order order = new Order("abc@bbc.com", "1", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
         order.setId("1");
-        Order expected = new Order("new@bbc.com", "20998372", "1", Arrays.asList(19, 20), customerGroupQuantityMap, "5105105105105100");
+        occupied.put(19, seatStatus);
+        occupied.put(20, seatStatus);
+        Order expected = new Order("new@bbc.com", "1", Arrays.asList(19, 20), customerGroupQuantityMap, "5105105105105100");
         when(orderRepository.findById("1")).thenReturn(Optional.of(order));
         when(orderRepository.save(any(Order.class))).thenReturn(expected);
         when(movieSessionRepository.findById("1")).thenReturn(Optional.of(movieSession1));
         //when
-        Order actual = orderService.update("1", order, creditCardInfo, clientSessionId);
+        Order actual = orderService.update("1", expected, creditCardInfo, clientSessionId);
 
         assertEquals(expected, actual);
+        assertNull(occupied.get(14));
+        assertNull(occupied.get(15));
+        assertEquals(SOLD,occupied.get(19).getStatus());
+        assertEquals(SOLD,occupied.get(20).getStatus());
     }
 
     @Test
@@ -328,7 +333,7 @@ public class OrderServiceTest {
         Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
         customerGroupQuantityMap.put("Adult", 2);
         customerGroupQuantityMap.put("Student", 1);
-        Order order = new Order("abc@bbc.com", "20998372", "1", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
+        Order order = new Order("abc@bbc.com", "1", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
         order.setId("1");
 
         assertThrows(OrderNotFoundException.class, () -> {

@@ -18,15 +18,13 @@ public class Order {
     @MongoId(FieldType.OBJECT_ID)
     private String id;
     private String email;
-    private String userId;
     private String movieSessionId;
     private List<Integer> bookedSeatIndices;
     private Map<String,Integer> customerGroupQuantityMap;
     private String creditCardNumber;
 
-    public Order(String email, String userId, String movieSessionId, List<Integer> bookedSeatIndices, Map<String, Integer> customerGroupQuantityMap, String creditCardNumber) {
+    public Order(String email, String movieSessionId, List<Integer> bookedSeatIndices, Map<String, Integer> customerGroupQuantityMap, String creditCardNumber) {
         this.email = email;
-        this.userId = userId;
         this.movieSessionId = movieSessionId;
         this.bookedSeatIndices = bookedSeatIndices;
         this.customerGroupQuantityMap = customerGroupQuantityMap;

@@ -57,6 +57,19 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
+    public Order update(String id, Order orderUpdate, CreditCardInfo creditCardInfo, String clientSessionId) {
+        Order order = this.getById(id);
+        MovieSession movieSession = movieSessionRepository.findById(order.getMovieSessionId()).orElseThrow(MovieSessionNotFoundException::new);
+        Map<Integer,SeatStatus> occupied = movieSession.getOccupied();
+        order.getBookedSeatIndices().forEach(seatId->{
+            occupied.remove(seatId);
+        });
+        movieSession.setOccupied(occupied);
+        movieSessionRepository.save(movieSession);
+        orderUpdate.setId(order.getId());
+        return this.create(orderUpdate, creditCardInfo, clientSessionId);
+    }
+
     private void updateSeatStatus(Order order, MovieSession movieSession) {
         order.getBookedSeatIndices().forEach(seatId -> {
             SeatStatus seatStatus = movieSession.getOccupied().get(seatId);
@@ -83,17 +96,14 @@ public class OrderService {
     public boolean isSeatAvailable(List<Integer> bookedSeatIndices, MovieSession movieSession, String clientSessionId) {
         for (Integer seatId : bookedSeatIndices) {
             SeatStatus seatStatus = movieSession.getOccupied().get(seatId);
+            if(seatStatus == null) {
+                return true;
+            }
             String status = seatStatus.getStatus();
             if (status.equals(SOLD) || (status.equals(IN_PROCESS) && !seatStatus.getClientSessionId().equals(clientSessionId))) {
                 return false;
             }
         }
         return true;
-    }
-
-    public Order update(String id, Order orderUpdate, CreditCardInfo creditCardInfo, String clientSessionId) {
-        Order order = this.getById(id);
-        orderUpdate.setId(order.getId());
-        return this.create(orderUpdate, creditCardInfo, clientSessionId);
     }
 }

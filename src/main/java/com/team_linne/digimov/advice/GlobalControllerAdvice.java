@@ -16,7 +16,7 @@ public class GlobalControllerAdvice {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler({IllegalArgumentException.class, InvalidCustomerGroupException.class, InvalidCreditCardInfoException.class, UnavailableSeatException.class})
-    public ErrorResponse handleIllegalArgument(IllegalArgumentException exception) {
+    public ErrorResponse handleIllegalArgument(Exception exception) {
         return new ErrorResponse(exception.getMessage(), HttpStatus.BAD_REQUEST.name());
     }
 
