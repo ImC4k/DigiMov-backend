@@ -20,7 +20,7 @@ public class SeatStatusTimeoutService {
     private final ThreadPoolExecutor taskExecutor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
     private Map<Integer, Future<?>> timeoutThreads = new HashMap<>();
     @Value("${timeout.value}")
-    private Integer TIMEOUT_IN_SECONDS;
+    private Integer timeoutInSeconds;
 
     @Autowired
     private MovieSessionService movieSessionService;
@@ -28,20 +28,19 @@ public class SeatStatusTimeoutService {
     private MovieSessionRepository movieSessionRepository;
 
     public SeatStatusTimeoutService(@Value("${timeout.value}") Integer timeoutValue) {
-        this.TIMEOUT_IN_SECONDS = timeoutValue;
-        System.out.println("timeout is " + TIMEOUT_IN_SECONDS);
+        this.timeoutInSeconds = timeoutValue;
     }
 
     public void startSeatStatusCountdown(final String movieSessionId, final Integer seatIndex) {
         final int id = new Random().nextInt();
         timeoutThreads.put(id, taskExecutor.submit(() -> {
             try {
-                sleep(TIMEOUT_IN_SECONDS);
+                sleep(timeoutInSeconds);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             MovieSession movieSession = movieSessionService.getById(movieSessionId);
-            if (movieSession.getOccupied().containsKey(seatIndex) && movieSession.getOccupied().get(seatIndex).getStatus().equals("in process")) {
+            if (movieSession.getOccupied().containsKey(seatIndex) && movieSession.getOccupied().get(seatIndex).getStatus().equals(MovieSessionService.IN_PROCESS)) {
                 // delete the entry
                 movieSession.getOccupied().remove(seatIndex);
                 movieSessionService.update(movieSessionId, movieSession);
@@ -51,6 +50,6 @@ public class SeatStatusTimeoutService {
     }
 
     public void setTimeoutInSeconds(Integer timeoutInSeconds) {
-        this.TIMEOUT_IN_SECONDS = timeoutInSeconds;
+        this.timeoutInSeconds = timeoutInSeconds;
     }
 }
