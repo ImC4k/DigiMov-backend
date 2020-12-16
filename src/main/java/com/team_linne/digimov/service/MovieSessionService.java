@@ -4,6 +4,7 @@ import com.team_linne.digimov.dto.MovieSessionPatchRequest;
 import com.team_linne.digimov.exception.InvalidSeatUpdateOperationException;
 import com.team_linne.digimov.exception.MovieNotFoundException;
 import com.team_linne.digimov.exception.UnauthorizedSeatUpdateOperationException;
+import com.team_linne.digimov.model.House;
 import com.team_linne.digimov.model.MovieSession;
 import com.team_linne.digimov.model.SeatStatus;
 import com.team_linne.digimov.repository.MovieSessionRepository;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class MovieSessionService {
@@ -22,6 +24,12 @@ public class MovieSessionService {
     private MovieSessionRepository movieSessionRepository;
     @Autowired
     private SeatStatusTimeoutService seatStatusTimeoutService;
+    @Autowired
+    private CinemaService cinemaService;
+    @Autowired
+    private MovieService movieService;
+    @Autowired
+    private HouseService houseService;
 
     public List<MovieSession> getAll() {
         return this.movieSessionRepository.findAll();
@@ -83,5 +91,25 @@ public class MovieSessionService {
     public void delete(String id) {
         MovieSession movieSession = this.getById(id);
         this.movieSessionRepository.deleteById(movieSession.getId());
+    }
+
+    public List<MovieSession> getUpcomingMovieSessionsByCinemaId(String cinemaId) {
+        List<House> housesFromRequiredCinema = houseService.getByCinemaId(cinemaId);
+        return movieSessionRepository.findAllByHouseIdInAndStartTimeGreaterThan(housesFromRequiredCinema.stream().map(House::getId).collect(Collectors.toList()), System.currentTimeMillis());
+    }
+
+    public List<MovieSession> getAllByCinemaId(String cinemaId) {
+        List<House> housesFromRequiredCinema = houseService.getByCinemaId(cinemaId);
+        return movieSessionRepository.findAllByHouseIdIn(housesFromRequiredCinema.stream().map(House::getId).collect(Collectors.toList()));
+    }
+
+    public List<MovieSession> getUpcomingMovieSessionsByMovieId(String movieId) {
+        movieService.getById(movieId);
+        return movieSessionRepository.findAllByMovieIdAndStartTimeGreaterThan(movieId, System.currentTimeMillis());
+    }
+
+    public List<MovieSession> getAllByMovieId(String movieId) {
+        movieService.getById(movieId);
+        return movieSessionRepository.findAllByMovieId(movieId);
     }
 }

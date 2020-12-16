@@ -52,4 +52,34 @@ public class MovieSessionController {
         this.movieSessionService.delete(id);
     }
 
+    @GetMapping(params={"cinema", "sessionStatus"})
+    public List<MovieSessionResponse> getUpcomingMovieSessionsByCinema(@RequestParam("cinema") String cinemaId, @RequestParam("sessionStatus") String sessionStatus) {
+        if (sessionStatus.equals("upcoming")) {
+            return movieSessionService.getUpcomingMovieSessionsByCinemaId(cinemaId).stream().map(movieSessionMapper::toResponse).collect(Collectors.toList());
+        }
+        else {
+            return getMovieSessionsByCinema(cinemaId);
+        }
+    }
+
+    @GetMapping(params={"cinema"})
+    public List<MovieSessionResponse> getMovieSessionsByCinema(@RequestParam("cinema") String cinemaId) {
+        return movieSessionService.getAllByCinemaId(cinemaId).stream().map(movieSessionMapper::toResponse).collect(Collectors.toList());
+    }
+
+    @GetMapping(params={"movie", "sessionStatus"})
+    public List<MovieSessionResponse> getUpcomingMovieSessionsByMovie(@RequestParam("movie") String movieId, @RequestParam("sessionStatus") String sessionStatus) {
+        if (sessionStatus.equals("upcoming")) {
+            return movieSessionService.getUpcomingMovieSessionsByMovieId(movieId).stream().map(movieSessionMapper::toResponse).collect(Collectors.toList());
+        }
+        else {
+            return getMovieSessionsByMovie(movieId);
+        }
+    }
+
+    @GetMapping(params={"movie"})
+    public List<MovieSessionResponse> getMovieSessionsByMovie(@RequestParam("movie") String movieId) {
+        return movieSessionService.getAllByMovieId(movieId).stream().map(movieSessionMapper::toResponse).collect(Collectors.toList());
+    }
+
 }

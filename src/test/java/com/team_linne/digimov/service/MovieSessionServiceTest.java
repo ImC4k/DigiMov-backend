@@ -3,6 +3,8 @@ package com.team_linne.digimov.service;
 import com.team_linne.digimov.dto.MovieSessionPatchRequest;
 import com.team_linne.digimov.exception.InvalidSeatUpdateOperationException;
 import com.team_linne.digimov.exception.MovieNotFoundException;
+import com.team_linne.digimov.model.House;
+import com.team_linne.digimov.model.Movie;
 import com.team_linne.digimov.model.MovieSession;
 import com.team_linne.digimov.model.SeatStatus;
 import com.team_linne.digimov.repository.MovieSessionRepository;
@@ -27,6 +29,11 @@ public class MovieSessionServiceTest {
     private MovieSessionService movieSessionService;
     @Mock
     private MovieSessionRepository movieSessionRepository;
+
+    @Mock
+    private HouseService houseService;
+    @Mock
+    private MovieService movieService;
     @Mock
     private SeatStatusTimeoutService seatStatusTimeoutService;
 
@@ -147,7 +154,7 @@ public class MovieSessionServiceTest {
 
         MovieSession originalMovieSession = new MovieSession("movieId", "houseId", 1608018488L, prices, occupied);
         when(movieSessionRepository.findById(originalMovieSession.getId())).thenReturn(Optional.of(originalMovieSession));
-
+        doNothing().when(seatStatusTimeoutService).startSeatStatusCountdown(any(), any());
         //when
         movieSessionService.patch(originalMovieSession.getId(), movieSessionPatchRequest);
         ArgumentCaptor<MovieSession> movieSessionArgumentCaptor = ArgumentCaptor.forClass(MovieSession.class);
@@ -277,6 +284,66 @@ public class MovieSessionServiceTest {
         assertThrows(MovieNotFoundException.class, () -> {
             movieSessionService.delete("999");
         }, "Movie not found");
+    }
+
+    @Test
+    void should_call_house_get_all_by_cinema_id_and_repository_find_all_by_house_id_in_and_start_time_greater_than_when_get_upcoming_movie_sessions_by_cinema_id_given_valid_cinema_id() {
+        //given
+        when(houseService.getByCinemaId(any())).thenReturn(Collections.emptyList());
+        when(movieSessionRepository.findAllByHouseIdInAndStartTimeGreaterThan(any(), any())).thenReturn(null);
+
+        //when
+        movieSessionService.getUpcomingMovieSessionsByCinemaId("cinemaId");
+
+        //then
+        verify(houseService, times(1)).getByCinemaId("cinemaId");
+        verify(movieSessionRepository, times(1)).findAllByHouseIdInAndStartTimeGreaterThan(eq(Collections.emptyList()), any());
+    }
+
+    @Test
+    void should_call_house_get_all_by_cinema_id_and_repository_find_all_by_house_id_in_when_get_all_by_cinema_id_given_valid_cinema_id() {
+        //given
+        when(houseService.getByCinemaId(any())).thenReturn(Collections.emptyList());
+        when(movieSessionRepository.findAllByHouseIdIn(any())).thenReturn(null);
+
+        //when
+        movieSessionService.getAllByCinemaId("cinemaId");
+
+        //then
+        verify(houseService, times(1)).getByCinemaId("cinemaId");
+        verify(movieSessionRepository, times(1)).findAllByHouseIdIn(eq(Collections.emptyList()));
+    }
+
+    @Test
+    void should_call_movie_get_by_id_and_repository_find_all_by_movie_id_and_start_time_greater_than_when_get_upcoming_movie_sessions_by_movie_id_given_valid_movie_id() {
+        //given
+        Movie movie = new Movie();
+        movie.setId("movieId");
+        when(movieService.getById(any())).thenReturn(movie);
+        when(movieSessionRepository.findAllByMovieIdAndStartTimeGreaterThan(any(), any())).thenReturn(null);
+
+        //when
+        movieSessionService.getUpcomingMovieSessionsByMovieId("movieId");
+
+        //then
+        verify(movieService, times(1)).getById("movieId");
+        verify(movieSessionRepository, times(1)).findAllByMovieIdAndStartTimeGreaterThan(eq(movie.getId()), any());
+    }
+
+    @Test
+    void should_call_movie_get_by_id_and_repository_find_all_by_movie_id_when_get_upcoming_movie_sessions_by_movie_id_given_valid_movie_id() {
+        //given
+        Movie movie = new Movie();
+        movie.setId("movieId");
+        when(movieService.getById(any())).thenReturn(movie);
+        when(movieSessionRepository.findAllByMovieId(any())).thenReturn(null);
+
+        //when
+        movieSessionService.getAllByMovieId("movieId");
+
+        //then
+        verify(movieService, times(1)).getById("movieId");
+        verify(movieSessionRepository, times(1)).findAllByMovieId("movieId");
     }
 
 }

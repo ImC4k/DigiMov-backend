@@ -1,8 +1,10 @@
 package com.team_linne.digimov.integration;
 
 import com.team_linne.digimov.dto.MovieSessionPatchRequest;
-import com.team_linne.digimov.model.MovieSession;
-import com.team_linne.digimov.model.SeatStatus;
+import com.team_linne.digimov.model.*;
+import com.team_linne.digimov.repository.CinemaRepository;
+import com.team_linne.digimov.repository.HouseRepository;
+import com.team_linne.digimov.repository.MovieRepository;
 import com.team_linne.digimov.repository.MovieSessionRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static java.lang.Thread.sleep;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -24,10 +27,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class MovieSessionIntegrationTest {
     @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @Autowired
-    MovieSessionRepository movieSessionRepository;
+    private MovieSessionRepository movieSessionRepository;
+    @Autowired
+    private CinemaRepository cinemaRepository;
+    @Autowired
+    private HouseRepository houseRepository;
+    @Autowired
+    private MovieRepository movieRepository;
 
     @AfterEach
     void tearDown() {
@@ -450,4 +459,129 @@ public class MovieSessionIntegrationTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void should_return_movie_sessions_with_matching_cinema_id_when_get_all_by_cinema_id_given_movie_session_repository_contains_movie_sessions_and_valid_cinema_id() throws Exception {
+        //given
+        Cinema cinema1 = cinemaRepository.save(new Cinema());
+        Cinema cinema2 = cinemaRepository.save(new Cinema());
+
+        House house1 = houseRepository.save(new House(cinema1.getId(), "", null));
+        House house2 = houseRepository.save(new House(cinema1.getId(), "", null));
+        House house3 = houseRepository.save(new House(cinema2.getId(), "", null));
+
+        Movie movie = movieRepository.save(new Movie());
+
+        MovieSession movieSession1 = movieSessionRepository.save(MovieSession.builder().movieId(movie.getId()).houseId(house1.getId()).build());
+        MovieSession movieSession2 = movieSessionRepository.save(MovieSession.builder().movieId(movie.getId()).houseId(house2.getId()).build());
+        MovieSession movieSession3 = movieSessionRepository.save(MovieSession.builder().movieId(movie.getId()).houseId(house3.getId()).build());
+
+        //when
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.get("/moviesessions?cinema=" + cinema1.getId()))
+//                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].houseId").value(house1.getId()))
+                .andExpect(jsonPath("$[1].houseId").value(house2.getId()))
+                .andExpect(jsonPath("$", hasSize(2)));
+
+    }
+
+    @Test
+    void should_return_movie_sessions_with_matching_cinema_id_and_start_time_later_than_now_when_get_upcoming_movie_sessions_by_cinema_id_given_movie_session_repository_contains_movie_sessions_and_cinema_id() throws Exception {
+        //given
+        Cinema cinema1 = cinemaRepository.save(new Cinema());
+        Cinema cinema2 = cinemaRepository.save(new Cinema());
+
+        House house1 = houseRepository.save(new House(cinema1.getId(), "", null));
+        House house2 = houseRepository.save(new House(cinema1.getId(), "", null));
+        House house3 = houseRepository.save(new House(cinema2.getId(), "", null));
+
+        Movie movie = movieRepository.save(new Movie());
+
+        MovieSession movieSession1 = movieSessionRepository.save(MovieSession.builder().movieId(movie.getId()).houseId(house1.getId()).startTime(System.currentTimeMillis() + 100000).build());
+        MovieSession movieSession2 = movieSessionRepository.save(MovieSession.builder().movieId(movie.getId()).houseId(house2.getId()).startTime(System.currentTimeMillis() - 100000).build());
+        MovieSession movieSession3 = movieSessionRepository.save(MovieSession.builder().movieId(movie.getId()).houseId(house3.getId()).build());
+
+        //when
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.get("/moviesessions?cinema=" + cinema1.getId() + "&sessionStatus=upcoming"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(movieSession1.getId()))
+                .andExpect(jsonPath("$[0].houseId").value(house1.getId()))
+                .andExpect(jsonPath("$", hasSize(1)));
+    }
+
+    @Test
+    void should_return_404NotFound_when_get_all_by_cinema_id_given_invalid_cinema_id() throws Exception {
+        //given
+        //when
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.get("/moviesessions?cinema=" + "5fc8913234ba53396c26a863"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void should_return_404NotFound_when_get_upcoming_movie_sessions_by_cinema_id_given_invalid_cinema_id() throws Exception {
+        //given
+        //when
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.get("/moviesessions?cinema=" + "5fc8913234ba53396c26a863" + "&sessionStatus=upcoming"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void should_return_movie_sessions_with_matching_movie_id_when_get_all_by_movie_id_given_movie_session_repository_contains_movie_sessions_and_valid_movie_id() throws Exception {
+        //given
+        Movie movie1 = movieRepository.save(new Movie());
+        Movie movie2 = movieRepository.save(new Movie());
+
+        MovieSession movieSession1 = movieSessionRepository.save(MovieSession.builder().movieId(movie1.getId()).build());
+        MovieSession movieSession2 = movieSessionRepository.save(MovieSession.builder().movieId(movie1.getId()).build());
+        MovieSession movieSession3 = movieSessionRepository.save(MovieSession.builder().movieId(movie2.getId()).build());
+
+        //when
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.get("/moviesessions?movie=" + movie1.getId()))
+//                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].movieId").value(movie1.getId()))
+                .andExpect(jsonPath("$[1].movieId").value(movie1.getId()))
+                .andExpect(jsonPath("$", hasSize(2)));
+
+    }
+
+    @Test
+    void should_return_movie_sessions_with_matching_movie_id_and_start_time_later_than_now_when_get_upcoming_movie_sessions_by_movie_id_given_movie_session_repository_contains_movie_sessions_and_movie_id() throws Exception {
+        //given
+        Movie movie1 = movieRepository.save(new Movie());
+        Movie movie2 = movieRepository.save(new Movie());
+
+        MovieSession movieSession1 = movieSessionRepository.save(MovieSession.builder().movieId(movie1.getId()).startTime(System.currentTimeMillis() + 100000).build());
+        MovieSession movieSession2 = movieSessionRepository.save(MovieSession.builder().movieId(movie1.getId()).startTime(System.currentTimeMillis() - 100000).build());
+        MovieSession movieSession3 = movieSessionRepository.save(MovieSession.builder().movieId(movie2.getId()).build());
+
+        //when
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.get("/moviesessions?movie=" + movie1.getId() + "&sessionStatus=upcoming"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(movieSession1.getId()))
+                .andExpect(jsonPath("$[0].movieId").value(movie1.getId()))
+                .andExpect(jsonPath("$", hasSize(1)));
+    }
+
+    @Test
+    void should_return_404NotFound_when_get_all_by_movie_id_given_invalid_movie_id() throws Exception {
+        //given
+        //when
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.get("/moviesessions?cinema=" + "5fc8913234ba53396c26a863"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void should_return_404NotFound_when_get_upcoming_movie_sessions_by_movie_id_given_invalid_movie_id() throws Exception {
+        //given
+        //when
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.get("/moviesessions?movie=" + "5fc8913234ba53396c26a863" + "&sessionStatus=upcoming"))
+                .andExpect(status().isNotFound());
+    }
 }
