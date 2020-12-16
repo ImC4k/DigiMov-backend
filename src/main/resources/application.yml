@@ -2,3 +2,6 @@ spring:
   data:
     mongodb:
       uri: mongodb://localhost:27017/digimov_local
+timeout:
+  value:
+    600000
