@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/moviesessions")
+@RequestMapping("/movie_sessions")
 public class MovieSessionController {
     @Autowired
     private MovieSessionService movieSessionService;
