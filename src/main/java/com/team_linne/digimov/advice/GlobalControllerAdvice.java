@@ -19,4 +19,16 @@ public class GlobalControllerAdvice {
     public ErrorResponse handleIllegalArgument(IllegalArgumentException exception) {
         return new ErrorResponse(exception.getMessage(), HttpStatus.BAD_REQUEST.name());
     }
+
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(InvalidSeatUpdateOperationException.class)
+    public ErrorResponse handleInvalidSeatUpdateOperation(InvalidSeatUpdateOperationException exception) {
+        return new ErrorResponse(exception.getMessage(), HttpStatus.FORBIDDEN.name());
+    }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(UnauthorizedSeatUpdateOperationException.class)
+    public ErrorResponse handleUnauthorizedSeatUpdateOperation(UnauthorizedSeatUpdateOperationException exception) {
+        return new ErrorResponse(exception.getMessage(), HttpStatus.FORBIDDEN.name());
+    }
 }

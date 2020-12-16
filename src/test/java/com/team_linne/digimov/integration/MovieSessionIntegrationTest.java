@@ -1,5 +1,6 @@
 package com.team_linne.digimov.integration;
 
+import com.team_linne.digimov.dto.MovieSessionPatchRequest;
 import com.team_linne.digimov.model.MovieSession;
 import com.team_linne.digimov.model.SeatStatus;
 import com.team_linne.digimov.repository.MovieSessionRepository;
@@ -15,10 +16,11 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.lang.Thread.sleep;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@SpringBootTest(properties = {"timeout.value=1000"})
 @AutoConfigureMockMvc
 public class MovieSessionIntegrationTest {
     @Autowired
@@ -244,6 +246,174 @@ public class MovieSessionIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(movieSessionAsJson))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void should_return_updated_movie_session_which_seat_indices_are_in_process_when_patch_given_original_seat_indices_were_available_and_valid_movie_session_id() throws Exception {
+        //given
+        MovieSession movieSession = new MovieSession("mov1", "hse1", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        MovieSession inserted = movieSessionRepository.insert(movieSession);
+
+        String movieSessionPatchRequest = "{\n" +
+                "    \"bookedSeatIndices\": [1,2],\n" +
+                "    \"clientSessionId\": \"qwerty\"\n" +
+                "}";
+
+        //when
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.patch("/moviesessions/" + inserted.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(movieSessionPatchRequest))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isString())
+                .andExpect(jsonPath("$.movieId").value("mov1"))
+                .andExpect(jsonPath("$.houseId").value("hse1"))
+                .andExpect(jsonPath("$.startTime").value("10000"))
+                .andExpect(jsonPath("$.prices").isEmpty())
+                .andExpect(jsonPath("$.occupied.1.status").value("in process"))
+                .andExpect(jsonPath("$.occupied.2.status").value("in process"));
+    }
+
+    @Test
+    void should_return_403_forbidden_when_patch_given_original_seat_indices_were_sold_and_valid_movie_session_id() throws Exception {
+        Map<Integer, SeatStatus> occupied = new HashMap<>();
+        occupied.put(1, new SeatStatus("sold", 10000L, "qazwsxedc"));
+        occupied.put(2, new SeatStatus("sold", 10000L, "qazwsxedc"));
+
+        MovieSession movieSession = new MovieSession("mov1", "hse1", 10000L, new HashMap<String, Double>(), occupied);
+        MovieSession inserted = movieSessionRepository.insert(movieSession);
+
+        String movieSessionPatchRequest = "{\n" +
+                "    \"bookedSeatIndices\": [1,2],\n" +
+                "    \"clientSessionId\": \"qwerty\"\n" +
+                "}";
+
+        //when
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.patch("/moviesessions/" + inserted.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(movieSessionPatchRequest))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void should_return_404_not_found_when_patch_given_invalid_movie_session_id() throws Exception {
+        //given
+        MovieSession movieSession = new MovieSession("mov1", "hse1", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        MovieSession inserted = movieSessionRepository.insert(movieSession);
+
+        //when
+        String movieSessionPatchRequest = "{\n" +
+                "    \"bookedSeatIndices\": [1,2],\n" +
+                "    \"clientSessionId\": \"qwerty\"\n" +
+                "}";
+
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.patch("/moviesessions/" + "5fc8913234ba53396c26a863")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(movieSessionPatchRequest))
+                .andExpect(status().isNotFound());
+
+    }
+
+    @Test
+    void should_return_401_unauthorized_when_patch_given_original_seat_indices_were_in_process_and_valid_movie_session_id_but_client_session_id_does_not_match() throws Exception {
+        //given
+        Map<Integer, SeatStatus> occupied = new HashMap<>();
+        occupied.put(1, new SeatStatus("in process", 10000L, "qazwsxedc"));
+        occupied.put(2, new SeatStatus("in process", 10000L, "qazwsxedc"));
+
+        MovieSession movieSession = new MovieSession("mov1", "hse1", 10000L, new HashMap<String, Double>(), occupied);
+        MovieSession inserted = movieSessionRepository.insert(movieSession);
+
+        //when
+        String movieSessionPatchRequest = "{\n" +
+                "    \"bookedSeatIndices\": [1,2],\n" +
+                "    \"clientSessionId\": \"qwerty\"\n" +
+                "}";
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.patch("/moviesessions/" + inserted.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(movieSessionPatchRequest))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void should_allow_other_client_session_id_update_seat_status_when_patch_given_first_client_session_timed_out() throws Exception {
+        //given
+        MovieSession movieSession = new MovieSession("mov1", "hse1", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        MovieSession inserted = movieSessionRepository.insert(movieSession);
+
+        String movieSessionPatchRequest = "{\n" +
+                "    \"bookedSeatIndices\": [1],\n" +
+                "    \"clientSessionId\": \"qwerty\"\n" +
+                "}";
+
+        mockMvc.perform(MockMvcRequestBuilders.patch("/moviesessions/" + inserted.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(movieSessionPatchRequest))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isString())
+                .andExpect(jsonPath("$.movieId").value("mov1"))
+                .andExpect(jsonPath("$.houseId").value("hse1"))
+                .andExpect(jsonPath("$.startTime").value("10000"))
+                .andExpect(jsonPath("$.prices").isEmpty())
+                .andExpect(jsonPath("$.occupied.1.status").value("in process"));
+
+        sleep(1500);
+
+        //when
+        //then
+        String new_movieSessionPatchRequest = "{\n" +
+                "    \"bookedSeatIndices\": [1],\n" +
+                "    \"clientSessionId\": \"qaazx\"\n" +
+                "}";
+
+        mockMvc.perform(MockMvcRequestBuilders.patch("/moviesessions/" + inserted.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new_movieSessionPatchRequest))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isString())
+                .andExpect(jsonPath("$.movieId").value("mov1"))
+                .andExpect(jsonPath("$.houseId").value("hse1"))
+                .andExpect(jsonPath("$.startTime").value("10000"))
+                .andExpect(jsonPath("$.prices").isEmpty())
+                .andExpect(jsonPath("$.occupied.1.status").value("in process"));
+    }
+
+    @Test
+    void should_allow_other_client_session_id_update_seat_status_when_patch_given_first_client_session_not_timed_out_yet() throws Exception {
+        //given
+        MovieSession movieSession = new MovieSession("mov1", "hse1", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        MovieSession inserted = movieSessionRepository.insert(movieSession);
+
+        String movieSessionPatchRequest = "{\n" +
+                "    \"bookedSeatIndices\": [1],\n" +
+                "    \"clientSessionId\": \"qwerty\"\n" +
+                "}";
+
+        mockMvc.perform(MockMvcRequestBuilders.patch("/moviesessions/" + inserted.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(movieSessionPatchRequest))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isString())
+                .andExpect(jsonPath("$.movieId").value("mov1"))
+                .andExpect(jsonPath("$.houseId").value("hse1"))
+                .andExpect(jsonPath("$.startTime").value("10000"))
+                .andExpect(jsonPath("$.prices").isEmpty())
+                .andExpect(jsonPath("$.occupied.1.status").value("in process"));
+
+        //when
+        //then
+        String new_movieSessionPatchRequest = "{\n" +
+                "    \"bookedSeatIndices\": [1],\n" +
+                "    \"clientSessionId\": \"qaazx\"\n" +
+                "}";
+
+        mockMvc.perform(MockMvcRequestBuilders.patch("/moviesessions/" + inserted.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new_movieSessionPatchRequest))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test

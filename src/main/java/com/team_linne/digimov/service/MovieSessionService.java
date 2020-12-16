@@ -3,6 +3,7 @@ package com.team_linne.digimov.service;
 import com.team_linne.digimov.dto.MovieSessionPatchRequest;
 import com.team_linne.digimov.exception.InvalidSeatUpdateOperationException;
 import com.team_linne.digimov.exception.MovieNotFoundException;
+import com.team_linne.digimov.exception.UnauthorizedSeatUpdateOperationException;
 import com.team_linne.digimov.model.MovieSession;
 import com.team_linne.digimov.model.SeatStatus;
 import com.team_linne.digimov.repository.MovieSessionRepository;
@@ -70,7 +71,7 @@ public class MovieSessionService {
         else {
             movieSessionPatchRequest.getBookedSeatIndices().forEach(index -> {
                 if (!movieSession.getOccupied().get(index).getClientSessionId().equals(movieSessionPatchRequest.getClientSessionId())) {
-                    throw new InvalidSeatUpdateOperationException();
+                    throw new UnauthorizedSeatUpdateOperationException();
                 }
             });
             movieSessionPatchRequest.getBookedSeatIndices().forEach(occupied::remove);
