@@ -18,7 +18,7 @@ import java.util.Map;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@SpringBootTest(properties = { "timeout.value=1000" })
 @AutoConfigureMockMvc
 public class MovieSessionIntegrationTest {
     @Autowired
@@ -244,6 +244,61 @@ public class MovieSessionIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(movieSessionAsJson))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void should_return_updated_movie_session_which_seat_indices_are_in_process_when_patch_given_original_seat_indices_were_available_and_valid_movie_session_id() {
+        //given
+
+
+        //when
+
+
+        //then
+    }
+
+    @Test
+    void should_return_403_forbidden_when_patch_given_original_seat_indices_were_sold_and_valid_movie_session_id() {
+        //given
+
+
+        //when
+
+
+        //then
+    }
+
+    @Test
+    void should_return_404_not_found_when_patch_given_invalid_movie_session_id() {
+        //given
+
+
+        //when
+
+
+        //then
+    }
+
+    @Test
+    void should_return_401_unauthorized_when_patch_given_original_seat_indices_were_in_process_and_valid_movie_session_id_but_client_session_id_does_not_match() {
+        //given
+
+
+        //when
+
+
+        //then
+    }
+
+    @Test
+    void should_return_movie_session_with_seat_indices_removed_from_occupied_when_patch_given_update_to_in_process_was_successful_but_timed_out() {
+        //given
+
+
+        //when
+
+
+        //then
     }
 
     @Test
