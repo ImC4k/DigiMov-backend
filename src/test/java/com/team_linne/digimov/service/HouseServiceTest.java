@@ -162,7 +162,7 @@ public class HouseServiceTest {
         //given
         House house1 = new House("1", "house 1", 200);
         House house2 = new House("1", "house 2", 300);
-        when(houseRepository.findByCinemaId(any())).thenReturn(Stream.of(house1, house2).collect(Collectors.toList()));
+        when(houseRepository.findAllByCinemaId(any())).thenReturn(Stream.of(house1, house2).collect(Collectors.toList()));
         house1.setId("1");
         house2.setId("2");
         when(houseRepository.findById(house1.getId())).thenReturn(Optional.of(house1));

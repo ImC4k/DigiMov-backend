@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface HouseRepository extends MongoRepository<House, String> {
-    List<House> findByCinemaId(String cinemaId);
+    List<House> findAllByCinemaId(String cinemaId);
 }
