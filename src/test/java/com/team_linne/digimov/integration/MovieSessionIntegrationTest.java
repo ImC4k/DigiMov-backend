@@ -1,8 +1,10 @@
 package com.team_linne.digimov.integration;
 
 import com.team_linne.digimov.dto.MovieSessionPatchRequest;
-import com.team_linne.digimov.model.MovieSession;
-import com.team_linne.digimov.model.SeatStatus;
+import com.team_linne.digimov.model.*;
+import com.team_linne.digimov.repository.CinemaRepository;
+import com.team_linne.digimov.repository.HouseRepository;
+import com.team_linne.digimov.repository.MovieRepository;
 import com.team_linne.digimov.repository.MovieSessionRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static java.lang.Thread.sleep;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -24,10 +27,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class MovieSessionIntegrationTest {
     @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @Autowired
-    MovieSessionRepository movieSessionRepository;
+    private MovieSessionRepository movieSessionRepository;
+    @Autowired
+    private CinemaRepository cinemaRepository;
+    @Autowired
+    private HouseRepository houseRepository;
+    @Autowired
+    private MovieRepository movieRepository;
 
     @AfterEach
     void tearDown() {
@@ -51,7 +60,7 @@ public class MovieSessionIntegrationTest {
 
         //when
         //then
-        mockMvc.perform(MockMvcRequestBuilders.get("/moviesessions"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/movie_sessions"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").isString())
                 .andExpect(jsonPath("$[0].movieId").value("mov1"))
@@ -75,7 +84,7 @@ public class MovieSessionIntegrationTest {
 
         movieSessionRepository.save(movieSession);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/moviesessions/" + movieSession.getId()))
+        mockMvc.perform(MockMvcRequestBuilders.get("/movie_sessions/" + movieSession.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isString())
                 .andExpect(jsonPath("$.movieId").value("mov1"))
@@ -119,7 +128,7 @@ public class MovieSessionIntegrationTest {
                 "}";
 
         //when
-        mockMvc.perform(MockMvcRequestBuilders.post("/moviesessions")
+        mockMvc.perform(MockMvcRequestBuilders.post("/movie_sessions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(movieSessionAsJson))
                 .andExpect(status().isCreated())
@@ -144,7 +153,7 @@ public class MovieSessionIntegrationTest {
 
 
         //when
-        mockMvc.perform(MockMvcRequestBuilders.post("/moviesessions")
+        mockMvc.perform(MockMvcRequestBuilders.post("/movie_sessions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(movieSessionAsJson))
                 .andExpect(status().isCreated())
@@ -180,7 +189,7 @@ public class MovieSessionIntegrationTest {
 
 
         //when
-        mockMvc.perform(MockMvcRequestBuilders.put("/moviesessions/" + movieSession1.getId())
+        mockMvc.perform(MockMvcRequestBuilders.put("/movie_sessions/" + movieSession1.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(movieSessionAsJson))
                 .andExpect(status().isOk())
@@ -214,7 +223,7 @@ public class MovieSessionIntegrationTest {
                 "    }\n" +
                 "}";
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/moviesessions/" + "5fc8913234ba53396c26a863")
+        mockMvc.perform(MockMvcRequestBuilders.put("/movie_sessions/" + "5fc8913234ba53396c26a863")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(movieSessionAsJson))
                 .andExpect(status().isNotFound());
@@ -242,7 +251,7 @@ public class MovieSessionIntegrationTest {
                 "    }\n" +
                 "}";
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/moviesessions/" + "zxxxcc")
+        mockMvc.perform(MockMvcRequestBuilders.put("/movie_sessions/" + "zxxxcc")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(movieSessionAsJson))
                 .andExpect(status().isBadRequest());
@@ -261,7 +270,7 @@ public class MovieSessionIntegrationTest {
 
         //when
         //then
-        mockMvc.perform(MockMvcRequestBuilders.patch("/moviesessions/" + inserted.getId())
+        mockMvc.perform(MockMvcRequestBuilders.patch("/movie_sessions/" + inserted.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(movieSessionPatchRequest))
                 .andExpect(status().isOk())
@@ -290,7 +299,7 @@ public class MovieSessionIntegrationTest {
 
         //when
         //then
-        mockMvc.perform(MockMvcRequestBuilders.patch("/moviesessions/" + inserted.getId())
+        mockMvc.perform(MockMvcRequestBuilders.patch("/movie_sessions/" + inserted.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(movieSessionPatchRequest))
                 .andExpect(status().isForbidden());
@@ -309,7 +318,7 @@ public class MovieSessionIntegrationTest {
                 "}";
 
         //then
-        mockMvc.perform(MockMvcRequestBuilders.patch("/moviesessions/" + "5fc8913234ba53396c26a863")
+        mockMvc.perform(MockMvcRequestBuilders.patch("/movie_sessions/" + "5fc8913234ba53396c26a863")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(movieSessionPatchRequest))
                 .andExpect(status().isNotFound());
@@ -332,7 +341,7 @@ public class MovieSessionIntegrationTest {
                 "    \"clientSessionId\": \"qwerty\"\n" +
                 "}";
         //then
-        mockMvc.perform(MockMvcRequestBuilders.patch("/moviesessions/" + inserted.getId())
+        mockMvc.perform(MockMvcRequestBuilders.patch("/movie_sessions/" + inserted.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(movieSessionPatchRequest))
                 .andExpect(status().isUnauthorized());
@@ -349,7 +358,7 @@ public class MovieSessionIntegrationTest {
                 "    \"clientSessionId\": \"qwerty\"\n" +
                 "}";
 
-        mockMvc.perform(MockMvcRequestBuilders.patch("/moviesessions/" + inserted.getId())
+        mockMvc.perform(MockMvcRequestBuilders.patch("/movie_sessions/" + inserted.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(movieSessionPatchRequest))
                 .andExpect(status().isOk())
@@ -369,7 +378,7 @@ public class MovieSessionIntegrationTest {
                 "    \"clientSessionId\": \"qaazx\"\n" +
                 "}";
 
-        mockMvc.perform(MockMvcRequestBuilders.patch("/moviesessions/" + inserted.getId())
+        mockMvc.perform(MockMvcRequestBuilders.patch("/movie_sessions/" + inserted.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new_movieSessionPatchRequest))
                 .andExpect(status().isOk())
@@ -392,7 +401,7 @@ public class MovieSessionIntegrationTest {
                 "    \"clientSessionId\": \"qwerty\"\n" +
                 "}";
 
-        mockMvc.perform(MockMvcRequestBuilders.patch("/moviesessions/" + inserted.getId())
+        mockMvc.perform(MockMvcRequestBuilders.patch("/movie_sessions/" + inserted.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(movieSessionPatchRequest))
                 .andExpect(status().isOk())
@@ -410,7 +419,7 @@ public class MovieSessionIntegrationTest {
                 "    \"clientSessionId\": \"qaazx\"\n" +
                 "}";
 
-        mockMvc.perform(MockMvcRequestBuilders.patch("/moviesessions/" + inserted.getId())
+        mockMvc.perform(MockMvcRequestBuilders.patch("/movie_sessions/" + inserted.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new_movieSessionPatchRequest))
                 .andExpect(status().isUnauthorized());
@@ -422,7 +431,7 @@ public class MovieSessionIntegrationTest {
         movieSessionRepository.insert(movieSession1);
 
         //when
-        mockMvc.perform(MockMvcRequestBuilders.delete("/moviesessions/" + movieSession1.getId()))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/movie_sessions/" + movieSession1.getId()))
                 .andExpect(status().isNoContent());
     }
 
@@ -434,7 +443,7 @@ public class MovieSessionIntegrationTest {
 
         //when
         //then
-        mockMvc.perform(MockMvcRequestBuilders.delete("/moviesessions/" + "5fc8913234ba53396c26a863"))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/movie_sessions/" + "5fc8913234ba53396c26a863"))
                 .andExpect(status().isNotFound());
     }
 
@@ -446,8 +455,133 @@ public class MovieSessionIntegrationTest {
 
         //when
         //then
-        mockMvc.perform(MockMvcRequestBuilders.delete("/moviesessions/" + "vbcxbcxb"))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/movie_sessions/" + "vbcxbcxb"))
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void should_return_movie_sessions_with_matching_cinema_id_when_get_all_by_cinema_id_given_movie_session_repository_contains_movie_sessions_and_valid_cinema_id() throws Exception {
+        //given
+        Cinema cinema1 = cinemaRepository.save(new Cinema());
+        Cinema cinema2 = cinemaRepository.save(new Cinema());
+
+        House house1 = houseRepository.save(new House(cinema1.getId(), "", null));
+        House house2 = houseRepository.save(new House(cinema1.getId(), "", null));
+        House house3 = houseRepository.save(new House(cinema2.getId(), "", null));
+
+        Movie movie = movieRepository.save(new Movie());
+
+        MovieSession movieSession1 = movieSessionRepository.save(MovieSession.builder().movieId(movie.getId()).houseId(house1.getId()).build());
+        MovieSession movieSession2 = movieSessionRepository.save(MovieSession.builder().movieId(movie.getId()).houseId(house2.getId()).build());
+        MovieSession movieSession3 = movieSessionRepository.save(MovieSession.builder().movieId(movie.getId()).houseId(house3.getId()).build());
+
+        //when
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.get("/movie_sessions?cinema=" + cinema1.getId()))
+//                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].houseId").value(house1.getId()))
+                .andExpect(jsonPath("$[1].houseId").value(house2.getId()))
+                .andExpect(jsonPath("$", hasSize(2)));
+
+    }
+
+    @Test
+    void should_return_movie_sessions_with_matching_cinema_id_and_start_time_later_than_now_when_get_upcoming_movie_sessions_by_cinema_id_given_movie_session_repository_contains_movie_sessions_and_cinema_id() throws Exception {
+        //given
+        Cinema cinema1 = cinemaRepository.save(new Cinema());
+        Cinema cinema2 = cinemaRepository.save(new Cinema());
+
+        House house1 = houseRepository.save(new House(cinema1.getId(), "", null));
+        House house2 = houseRepository.save(new House(cinema1.getId(), "", null));
+        House house3 = houseRepository.save(new House(cinema2.getId(), "", null));
+
+        Movie movie = movieRepository.save(new Movie());
+
+        MovieSession movieSession1 = movieSessionRepository.save(MovieSession.builder().movieId(movie.getId()).houseId(house1.getId()).startTime(System.currentTimeMillis() + 100000).build());
+        MovieSession movieSession2 = movieSessionRepository.save(MovieSession.builder().movieId(movie.getId()).houseId(house2.getId()).startTime(System.currentTimeMillis() - 100000).build());
+        MovieSession movieSession3 = movieSessionRepository.save(MovieSession.builder().movieId(movie.getId()).houseId(house3.getId()).build());
+
+        //when
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.get("/movie_sessions?cinema=" + cinema1.getId() + "&sessionStatus=upcoming"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(movieSession1.getId()))
+                .andExpect(jsonPath("$[0].houseId").value(house1.getId()))
+                .andExpect(jsonPath("$", hasSize(1)));
+    }
+
+    @Test
+    void should_return_404NotFound_when_get_all_by_cinema_id_given_invalid_cinema_id() throws Exception {
+        //given
+        //when
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.get("/movie_sessions?cinema=" + "5fc8913234ba53396c26a863"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void should_return_404NotFound_when_get_upcoming_movie_sessions_by_cinema_id_given_invalid_cinema_id() throws Exception {
+        //given
+        //when
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.get("/movie_sessions?cinema=" + "5fc8913234ba53396c26a863" + "&sessionStatus=upcoming"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void should_return_movie_sessions_with_matching_movie_id_when_get_all_by_movie_id_given_movie_session_repository_contains_movie_sessions_and_valid_movie_id() throws Exception {
+        //given
+        Movie movie1 = movieRepository.save(new Movie());
+        Movie movie2 = movieRepository.save(new Movie());
+
+        MovieSession movieSession1 = movieSessionRepository.save(MovieSession.builder().movieId(movie1.getId()).build());
+        MovieSession movieSession2 = movieSessionRepository.save(MovieSession.builder().movieId(movie1.getId()).build());
+        MovieSession movieSession3 = movieSessionRepository.save(MovieSession.builder().movieId(movie2.getId()).build());
+
+        //when
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.get("/movie_sessions?movie=" + movie1.getId()))
+//                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].movieId").value(movie1.getId()))
+                .andExpect(jsonPath("$[1].movieId").value(movie1.getId()))
+                .andExpect(jsonPath("$", hasSize(2)));
+
+    }
+
+    @Test
+    void should_return_movie_sessions_with_matching_movie_id_and_start_time_later_than_now_when_get_upcoming_movie_sessions_by_movie_id_given_movie_session_repository_contains_movie_sessions_and_movie_id() throws Exception {
+        //given
+        Movie movie1 = movieRepository.save(new Movie());
+        Movie movie2 = movieRepository.save(new Movie());
+
+        MovieSession movieSession1 = movieSessionRepository.save(MovieSession.builder().movieId(movie1.getId()).startTime(System.currentTimeMillis() + 100000).build());
+        MovieSession movieSession2 = movieSessionRepository.save(MovieSession.builder().movieId(movie1.getId()).startTime(System.currentTimeMillis() - 100000).build());
+        MovieSession movieSession3 = movieSessionRepository.save(MovieSession.builder().movieId(movie2.getId()).build());
+
+        //when
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.get("/movie_sessions?movie=" + movie1.getId() + "&sessionStatus=upcoming"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(movieSession1.getId()))
+                .andExpect(jsonPath("$[0].movieId").value(movie1.getId()))
+                .andExpect(jsonPath("$", hasSize(1)));
+    }
+
+    @Test
+    void should_return_404NotFound_when_get_all_by_movie_id_given_invalid_movie_id() throws Exception {
+        //given
+        //when
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.get("/movie_sessions?cinema=" + "5fc8913234ba53396c26a863"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void should_return_404NotFound_when_get_upcoming_movie_sessions_by_movie_id_given_invalid_movie_id() throws Exception {
+        //given
+        //when
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.get("/movie_sessions?movie=" + "5fc8913234ba53396c26a863" + "&sessionStatus=upcoming"))
+                .andExpect(status().isNotFound());
+    }
 }
