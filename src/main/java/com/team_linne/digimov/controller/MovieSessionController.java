@@ -43,7 +43,7 @@ public class MovieSessionController {
 
     @PatchMapping("/{id}")
     public MovieSessionResponse patchSeatIndices(@PathVariable String id, @RequestBody MovieSessionPatchRequest movieSessionPatchRequest) {
-        return null;
+        return movieSessionMapper.toResponse(this.movieSessionService.patch(id, movieSessionPatchRequest));
     }
 
     @DeleteMapping("/{id}")
