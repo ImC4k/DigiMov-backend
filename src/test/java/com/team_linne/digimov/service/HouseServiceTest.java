@@ -168,7 +168,7 @@ public class HouseServiceTest {
         when(houseRepository.findById(house1.getId())).thenReturn(Optional.of(house1));
         when(houseRepository.findById(house2.getId())).thenReturn(Optional.of(house2));
         //when
-        houseService.deleteCinemaId("1");
+        houseService.deleteHouseWithCinemaId("1");
 
         //then
         verify(houseRepository, times(2)).deleteById(any());
