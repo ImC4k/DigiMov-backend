@@ -584,4 +584,18 @@ public class MovieSessionIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/movie_sessions?movie=" + "5fc8913234ba53396c26a863" + "&sessionStatus=upcoming"))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    public void should_delete_movie_session_when_delete_house_given_movie_session_with_house_id() throws Exception {
+        Movie movie = movieRepository.save(new Movie());
+        House house = houseRepository.save(new House());
+        MovieSession movieSession1 = movieSessionRepository.save(MovieSession.builder().movieId(movie.getId()).houseId(house.getId()).startTime(System.currentTimeMillis() + 100000).build());
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.delete("/houses/" + house.getId()));
+
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.get("/movie_sessions/" + movieSession1.getId()))
+                .andExpect(status().isNotFound());
+    }
 }
