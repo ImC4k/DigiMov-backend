@@ -31,6 +31,8 @@ public class HouseServiceTest {
 
     @Mock
     private CinemaRepository cinemaRepository;
+    @Mock
+    private CinemaService cinemaService;
 
     @Test
     void should_return_all_houses_when_get_all_given_list_of_houses() {
@@ -95,6 +97,7 @@ public class HouseServiceTest {
         Cinema cinema = new Cinema();
         cinema.setId("1");
         House house1 = new House("1", "house 1", 200);
+        when(cinemaService.getById("1")).thenReturn(cinema);
         when(houseRepository.save(house1)).thenReturn(house1);
 
         //when
@@ -169,5 +172,20 @@ public class HouseServiceTest {
 
         //then
         verify(houseRepository, times(2)).deleteById(any());
+    }
+
+    @Test
+    void should_call_cinema_get_by_id_and_repository_save_when_get_all_by_cinema_id_given_cinema_id_valid() {
+        //given
+        Cinema cinema = new Cinema();
+        cinema.setId("1");
+        when(cinemaService.getById(any())).thenReturn(cinema);
+        when(houseRepository.findAllByCinemaId(any())).thenReturn(null);
+        //when
+        houseService.getByCinemaId("1");
+
+        //then
+        verify(cinemaService, times(1)).getById("1");
+        verify(houseRepository, times(1)).findAllByCinemaId("1");
     }
 }

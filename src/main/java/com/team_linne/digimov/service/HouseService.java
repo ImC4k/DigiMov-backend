@@ -15,7 +15,7 @@ public class HouseService {
     private HouseRepository houseRepository;
 
     @Autowired
-    private CinemaRepository cinemaRepository;
+    private CinemaService cinemaService;
 
     public List<House> getAll() {
         return houseRepository.findAll();
@@ -26,19 +26,24 @@ public class HouseService {
     }
 
     public House create(House houseCreate) {
-        cinemaRepository.findById(houseCreate.getCinemaId());
+        cinemaService.getById(houseCreate.getCinemaId());
         return houseRepository.save(houseCreate);
     }
 
     public House update(String id, House houseUpdate) {
-        House house = this.getById(id);
+        this.getById(id);
         houseUpdate.setId(id);
         return this.create(houseUpdate);
     }
 
     public void delete(String id) {
-        House house = this.getById(id);
+        this.getById(id);
         houseRepository.deleteById(id);
+    }
+
+    public List<House> getByCinemaId(String cinemaId) {
+        cinemaService.getById(cinemaId);
+        return houseRepository.findAllByCinemaId(cinemaId);
     }
 
     public void deleteCinemaId(String cinemaId) {
