@@ -225,4 +225,17 @@ public class HouseIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.delete("/houses/" + "123"))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    public void should_delete_house_when_delete_cinema_given_house_with_cinema_id() throws Exception {
+        Cinema cinema = cinemaRepository.save(new Cinema());
+        House house = houseRepository.save(new House(cinema.getId(), "house 1", 200));
+
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.delete("/cinemas/" + cinema.getId()));
+
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.get("/houses/" + house.getId()))
+                .andExpect(status().isNotFound());
+    }
 }
