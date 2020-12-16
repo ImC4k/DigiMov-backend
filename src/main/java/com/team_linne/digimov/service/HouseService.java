@@ -40,4 +40,9 @@ public class HouseService {
         House house = this.getById(id);
         houseRepository.deleteById(id);
     }
+
+    public void deleteCinemaId(String cinemaId) {
+        List<House> housesWithCinemaId = houseRepository.findByCinemaId(cinemaId);
+        housesWithCinemaId.forEach(house -> this.delete(house.getId()));
+    }
 }

@@ -2,6 +2,7 @@ package com.team_linne.digimov.service;
 
 import com.team_linne.digimov.exception.CinemaNotFoundException;
 import com.team_linne.digimov.model.Cinema;
+import com.team_linne.digimov.model.House;
 import com.team_linne.digimov.repository.CinemaRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,6 +26,8 @@ public class CinemaServiceTest {
     private CinemaService cinemaService;
     @Mock
     private CinemaRepository cinemaRepository;
+    @Mock
+    private HouseService houseService;
 
     @Test
     void should_return_all_cinemas_when_get_all_given_list_of_cinemas() {
@@ -149,5 +152,20 @@ public class CinemaServiceTest {
         assertThrows(CinemaNotFoundException.class, () -> {
             cinemaService.delete("999");
         }, "Cinema not found");
+    }
+
+    @Test
+    void should_return_house_without_cinema_when_delete_cinema_given_house_with_cinema_id() {
+        //given
+        Cinema cinema = new Cinema();
+        cinema.setId("1");
+        House house = new House("1", "house 1", 200);
+        when(cinemaRepository.findById(cinema.getId())).thenReturn(Optional.of(cinema));
+
+        //when
+        cinemaService.delete(cinema.getId());
+
+        //then
+        verify(houseService, times(1)).deleteCinemaId("1");
     }
 }
