@@ -2,7 +2,6 @@ package com.team_linne.digimov.service;
 
 import com.team_linne.digimov.exception.HouseNotFoundException;
 import com.team_linne.digimov.model.House;
-import com.team_linne.digimov.repository.CinemaRepository;
 import com.team_linne.digimov.repository.HouseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +15,9 @@ public class HouseService {
 
     @Autowired
     private CinemaService cinemaService;
+
+    @Autowired
+    private MovieSessionService movieSessionService;
 
     public List<House> getAll() {
         return houseRepository.findAll();
@@ -39,6 +41,9 @@ public class HouseService {
     public void delete(String id) {
         this.getById(id);
         houseRepository.deleteById(id);
+        if (movieSessionService != null) {
+            movieSessionService.deleteMovieSessionWithHouseId(id);
+        }
     }
 
     public List<House> getByCinemaId(String cinemaId) {

@@ -34,6 +34,9 @@ public class HouseServiceTest {
     @Mock
     private CinemaService cinemaService;
 
+    @Mock
+    private MovieSessionService movieSessionService;
+
     @Test
     void should_return_all_houses_when_get_all_given_list_of_houses() {
         //given
@@ -187,5 +190,19 @@ public class HouseServiceTest {
         //then
         verify(cinemaService, times(1)).getById("1");
         verify(houseRepository, times(1)).findAllByCinemaId("1");
+    }
+
+    @Test
+    void should_delete_movie_session_when_delete_house_given_movie_session_with_house_id() {
+        //given
+        House house = new House();
+        house.setId("1");
+        when(houseRepository.findById(house.getId())).thenReturn(Optional.of(house));
+
+        //when
+        houseService.delete(house.getId());
+
+        //then
+        verify(movieSessionService, times(1)).deleteMovieSessionWithHouseId("1");
     }
 }
