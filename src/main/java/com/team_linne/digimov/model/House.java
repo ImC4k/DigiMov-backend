@@ -9,6 +9,8 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 @Data
 @EqualsAndHashCode
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class House {
     @MongoId(FieldType.OBJECT_ID)
     private String id;
