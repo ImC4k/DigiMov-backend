@@ -90,4 +90,10 @@ public class OrderService {
         }
         return true;
     }
+
+    public Order update(String id, Order orderUpdate, CreditCardInfo creditCardInfo, String clientSessionId) {
+        Order order = this.getById(id);
+        orderUpdate.setId(order.getId());
+        return this.create(orderUpdate, creditCardInfo, clientSessionId);
+    }
 }

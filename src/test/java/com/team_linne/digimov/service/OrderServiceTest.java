@@ -282,4 +282,58 @@ public class OrderServiceTest {
         });
     }
 
+    @Test
+    void should_return_updated_order_when_update_order_given_valid_order_id_and_order_update_info() {
+        ExpiryDate expiryDate = new ExpiryDate("4", "2043");
+        CreditCardInfo creditCardInfo = new CreditCardInfo("5105105105105100", expiryDate, 406, "Jackie");
+        String clientSessionId = "123456";
+        Map<String, Double> prices = new HashMap<>();
+        prices.put("Adult", 100D);
+        prices.put("Student", 60D);
+        SeatStatus seatStatus = new SeatStatus(IN_PROCESS, 1000L, "123456");
+        Map<Integer, SeatStatus> occupied = new HashMap<>();
+        occupied.put(14, seatStatus);
+        occupied.put(15, seatStatus);
+        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, prices, occupied);
+        movieSession1.setId("1");
+        Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
+        customerGroupQuantityMap.put("Adult", 2);
+        customerGroupQuantityMap.put("Student", 1);
+        Order order = new Order("abc@bbc.com", "20998372", "1", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
+        order.setId("1");
+        Order expected = new Order("new@bbc.com", "20998372", "1", Arrays.asList(19, 20), customerGroupQuantityMap, "5105105105105100");
+        when(orderRepository.findById("1")).thenReturn(Optional.of(order));
+        when(orderRepository.save(any(Order.class))).thenReturn(expected);
+        when(movieSessionRepository.findById("1")).thenReturn(Optional.of(movieSession1));
+        //when
+        Order actual = orderService.update("1", order, creditCardInfo, clientSessionId);
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void should_throw_order_id_not_found_exception_when_update_order_given_invalid_order_id_and_order_update_info() {
+        ExpiryDate expiryDate = new ExpiryDate("4", "2043");
+        CreditCardInfo creditCardInfo = new CreditCardInfo("5105105105105100", expiryDate, 406, "Jackie");
+        String clientSessionId = "123456";
+        Map<String, Double> prices = new HashMap<>();
+        prices.put("Adult", 100D);
+        prices.put("Student", 60D);
+        SeatStatus seatStatus = new SeatStatus(IN_PROCESS, 1000L, "123456");
+        Map<Integer, SeatStatus> occupied = new HashMap<>();
+        occupied.put(14, seatStatus);
+        occupied.put(15, seatStatus);
+        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, prices, occupied);
+        movieSession1.setId("1");
+        Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
+        customerGroupQuantityMap.put("Adult", 2);
+        customerGroupQuantityMap.put("Student", 1);
+        Order order = new Order("abc@bbc.com", "20998372", "1", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
+        order.setId("1");
+
+        assertThrows(OrderNotFoundException.class, () -> {
+            orderService.update("999", order, creditCardInfo, clientSessionId);
+        }, "Order not found");
+    }
+
 }
