@@ -2,3 +2,6 @@ spring:
   data:
     mongodb:
       uri: ${MONGO_DB_URI}
+timeout:
+  value:
+    ${TIMEOUT_VALUE}
