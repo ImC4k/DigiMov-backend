@@ -5,7 +5,6 @@ import com.team_linne.digimov.dto.MovieRequest;
 import com.team_linne.digimov.dto.MovieResponse;
 import com.team_linne.digimov.mapper.GenreMapper;
 import com.team_linne.digimov.mapper.MovieMapper;
-import com.team_linne.digimov.model.Genre;
 import com.team_linne.digimov.model.Movie;
 import com.team_linne.digimov.service.GenreService;
 import com.team_linne.digimov.service.MovieService;
@@ -13,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -63,7 +63,7 @@ public class MovieController {
 
 
     private MovieResponse getMovieResponse(Movie movie) {
-        List<GenreResponse> genres = movie.getGenreIds().stream().map(id -> genreMapper.toResponse(genreService.getById(id))).collect(Collectors.toList());
+        List<GenreResponse> genres = movie.getGenreIds() != null? movie.getGenreIds().stream().map(id -> genreMapper.toResponse(genreService.getById(id))).collect(Collectors.toList()) : Collections.emptyList();
         return movieMapper.toResponse(movie, genres);
     }
 
