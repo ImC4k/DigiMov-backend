@@ -1,12 +1,9 @@
 package com.team_linne.digimov.service;
 
-import com.team_linne.digimov.exception.MovieNotFoundException;
-import com.team_linne.digimov.exception.OrderNotFoundException;
-import com.team_linne.digimov.model.Cinema;
-import com.team_linne.digimov.model.Movie;
-import com.team_linne.digimov.model.Order;
+import com.team_linne.digimov.exception.*;
+import com.team_linne.digimov.model.*;
+import com.team_linne.digimov.repository.MovieSessionRepository;
 import com.team_linne.digimov.repository.OrderRepository;
-import org.assertj.core.util.Maps;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,28 +11,31 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class OrderServiceTest {
+    public static final String IN_PROCESS = "in process";
+    public static final String SOLD = "sold";
     @InjectMocks
     OrderService orderService;
+    @InjectMocks
+    MovieSessionService movieSessionService;
     @Mock
     OrderRepository orderRepository;
+    @Mock
+    MovieSessionRepository movieSessionRepository;
 
     @Test
     void should_return_all_orders_when_get_all_given_list_of_orders() {
         //given
-        Map<String,Integer> customerGroupQuantityMap = new HashMap<>();
-        customerGroupQuantityMap.put("Adults",2);
-        customerGroupQuantityMap.put("Student",1);
-        Order order = new Order("abc@bbc.com","20998372","32", Arrays.asList(14,15), customerGroupQuantityMap,"5105105105105100");
+        Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
+        customerGroupQuantityMap.put("Adults", 2);
+        customerGroupQuantityMap.put("Student", 1);
+        Order order = new Order("abc@bbc.com", "20998372", "32", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
         List<Order> orderList = new ArrayList<>();
         orderList.add(order);
         when(orderRepository.findAll()).thenReturn(orderList);
@@ -63,11 +63,11 @@ public class OrderServiceTest {
     @Test
     void should_return_specific_order_when_get_by_id_given_list_of_orders_and_valid_order_id() {
         //given
-        Map<String,Integer> customerGroupQuantityMap = new HashMap<>();
-        customerGroupQuantityMap.put("Adults",2);
-        customerGroupQuantityMap.put("Student",1);
-        Order order1 = new Order("abc@bbc.com","20998372","32", Arrays.asList(14,15), customerGroupQuantityMap,"5105105105105100");
-        Order order2 = new Order("cbd@bbc.com","35432312","31", Arrays.asList(15,16), customerGroupQuantityMap,"5105105105105100");
+        Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
+        customerGroupQuantityMap.put("Adults", 2);
+        customerGroupQuantityMap.put("Student", 1);
+        Order order1 = new Order("abc@bbc.com", "20998372", "32", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
+        Order order2 = new Order("cbd@bbc.com", "35432312", "31", Arrays.asList(15, 16), customerGroupQuantityMap, "5105105105105100");
         order1.setId("1");
         order2.setId("2");
         List<Order> orderList = new ArrayList<>();
@@ -95,10 +95,10 @@ public class OrderServiceTest {
     @Test
     void should_delete_order_when_delete_order_given_valid_order_id() {
         //given
-        Map<String,Integer> customerGroupQuantityMap = new HashMap<>();
-        customerGroupQuantityMap.put("Adults",2);
-        customerGroupQuantityMap.put("Student",1);
-        Order order = new Order("abc@bbc.com","20998372","32", Arrays.asList(14,15), customerGroupQuantityMap,"5105105105105100");
+        Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
+        customerGroupQuantityMap.put("Adults", 2);
+        customerGroupQuantityMap.put("Student", 1);
+        Order order = new Order("abc@bbc.com", "20998372", "32", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
         order.setId("1");
         when(orderRepository.findById("1")).thenReturn(Optional.of(order));
 
@@ -118,4 +118,168 @@ public class OrderServiceTest {
             orderService.delete("999");
         }, "Order not found");
     }
+
+    @Test
+    void should_return_created_order_and_update_seats_status_movie_session_occupied_when_create_order_given_valid_movie_session_id_and_ticket_types_are_found_in_movie_session() {
+        ExpiryDate expiryDate = new ExpiryDate("4", "2043");
+        CreditCardInfo creditCardInfo = new CreditCardInfo("5105105105105100", expiryDate, 406, "Jackie");
+        String clientSessionId = "123456";
+        Map<String, Double> prices = new HashMap<>();
+        prices.put("Adult", 100D);
+        prices.put("Student", 60D);
+        SeatStatus seatStatus = new SeatStatus(IN_PROCESS, 1000L, "123456");
+        Map<Integer, SeatStatus> occupied = new HashMap<>();
+        occupied.put(14, seatStatus);
+        occupied.put(15, seatStatus);
+        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, prices, occupied);
+        movieSession1.setId("1");
+        Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
+        customerGroupQuantityMap.put("Adult", 2);
+        customerGroupQuantityMap.put("Student", 1);
+        Order order = new Order("abc@bbc.com", "20998372", "1", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
+        when(orderRepository.save(order)).thenReturn(order);
+        when(movieSessionRepository.findById("1")).thenReturn(Optional.of(movieSession1));
+        //when
+        Order actual = orderService.create(order, creditCardInfo, clientSessionId);
+
+        //then
+        assertEquals(order, actual);
+        assertEquals(movieSessionService.getById("1").getOccupied().get(14).getStatus(), SOLD);
+        assertEquals(movieSessionService.getById("1").getOccupied().get(15).getStatus(), SOLD);
+    }
+
+    @Test
+    void should_throw_invalid_customer_group_exception_when_create_order_given_non_exist_ticket_type_in_movie_session() {
+        ExpiryDate expiryDate = new ExpiryDate("4", "2043");
+        CreditCardInfo creditCardInfo = new CreditCardInfo("5105105105105100", expiryDate, 406, "Jackie");
+        String clientSessionId = "123456";
+        Map<String, Double> prices = new HashMap<>();
+        SeatStatus seatStatus = new SeatStatus(IN_PROCESS, 1000L, "123456");
+        Map<Integer, SeatStatus> occupied = new HashMap<>();
+        occupied.put(14, seatStatus);
+        occupied.put(15, seatStatus);
+        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, prices, occupied);
+        movieSession1.setId("1");
+        Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
+        customerGroupQuantityMap.put("Adult", 2);
+        Order order = new Order("abc@bbc.com", "20998372", "1", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
+        when(movieSessionRepository.findById("1")).thenReturn(Optional.of(movieSession1));
+        //when
+        //then
+        assertThrows(InvalidCustomerGroupException.class, () -> {
+            orderService.create(order, creditCardInfo, clientSessionId);
+        });
+    }
+
+    @Test
+    void should_throw_movie_session_not_found_exception_when_create_order_given_invalid_movie_session_id() {
+        ExpiryDate expiryDate = new ExpiryDate("4", "2043");
+        CreditCardInfo creditCardInfo = new CreditCardInfo("5105105105105100", expiryDate, 406, "Jackie");
+        String clientSessionId = "123456";
+        Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
+        customerGroupQuantityMap.put("Adult", 2);
+        Order order = new Order("abc@bbc.com", "20998372", "1", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
+
+        //when
+        //then
+        assertThrows(MovieSessionNotFoundException.class, () -> {
+            orderService.create(order, creditCardInfo, clientSessionId);
+        });
+    }
+
+    @Test
+    void should_throw_invalid_credit_card_info_exception_when_create_order_given_invalid_credit_card_number() {
+        ExpiryDate expiryDate = new ExpiryDate("4", "2043");
+        CreditCardInfo creditCardInfo = new CreditCardInfo("123", expiryDate, 406, "Jackie");
+        String clientSessionId = "123456";
+        Map<String, Double> prices = new HashMap<>();
+        SeatStatus seatStatus = new SeatStatus(IN_PROCESS, 1000L, "123456");
+        Map<Integer, SeatStatus> occupied = new HashMap<>();
+        occupied.put(14, seatStatus);
+        occupied.put(15, seatStatus);
+        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, prices, occupied);
+        movieSession1.setId("1");
+        Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
+        customerGroupQuantityMap.put("Adult", 2);
+        Order order = new Order("abc@bbc.com", "20998372", "1", Arrays.asList(14, 15), customerGroupQuantityMap, "123");
+        when(movieSessionRepository.findById("1")).thenReturn(Optional.of(movieSession1));
+        //when
+        //then
+        assertThrows(InvalidCreditCardInfoException.class, () -> {
+            orderService.create(order, creditCardInfo, clientSessionId);
+        });
+    }
+
+    @Test
+    void should_throw_invalid_credit_card_info_exception_when_create_order_given_valid_credit_card_number_but_expired() {
+        ExpiryDate expiryDate = new ExpiryDate("4", "1998");
+        CreditCardInfo creditCardInfo = new CreditCardInfo("5105105105105100", expiryDate, 406, "Jackie");
+        String clientSessionId = "123456";
+        Map<String, Double> prices = new HashMap<>();
+        SeatStatus seatStatus = new SeatStatus(IN_PROCESS, 1000L, "123456");
+        Map<Integer, SeatStatus> occupied = new HashMap<>();
+        occupied.put(14, seatStatus);
+        occupied.put(15, seatStatus);
+        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, prices, occupied);
+        movieSession1.setId("1");
+        Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
+        customerGroupQuantityMap.put("Adult", 2);
+        Order order = new Order("abc@bbc.com", "20998372", "1", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
+        when(movieSessionRepository.findById("1")).thenReturn(Optional.of(movieSession1));
+        //when
+        //then
+        assertThrows(InvalidCreditCardInfoException.class, () -> {
+            orderService.create(order, creditCardInfo, clientSessionId);
+        });
+    }
+
+    @Test
+    void should_throw_unavailable_seat_exception_when_create_order_given_any_of_bookedSeatIndices_is_sold() {
+        ExpiryDate expiryDate = new ExpiryDate("4", "2045");
+        CreditCardInfo creditCardInfo = new CreditCardInfo("5105105105105100", expiryDate, 406, "Jackie");
+        String clientSessionId = "123456";
+        Map<String, Double> prices = new HashMap<>();
+        prices.put("Adult", 100D);
+        SeatStatus seatStatus1 = new SeatStatus(SOLD, 1000L, "123456");
+        SeatStatus seatStatus2 = new SeatStatus(IN_PROCESS, 1000L, "123456");
+        Map<Integer, SeatStatus> occupied = new HashMap<>();
+        occupied.put(14, seatStatus1);
+        occupied.put(15, seatStatus2);
+        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, prices, occupied);
+        movieSession1.setId("1");
+        Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
+        customerGroupQuantityMap.put("Adult", 2);
+        Order order = new Order("abc@bbc.com", "20998372", "1", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
+        when(movieSessionRepository.findById("1")).thenReturn(Optional.of(movieSession1));
+        //when
+        //then
+        assertThrows(UnavailableSeatException.class, () -> {
+            orderService.create(order, creditCardInfo, clientSessionId);
+        });
+    }
+
+    @Test
+    void should_throw_unavailable_seat_exception_when_create_order_given_seats_are_in_progress_but_different_clientSessionId() {
+        ExpiryDate expiryDate = new ExpiryDate("4", "2045");
+        CreditCardInfo creditCardInfo = new CreditCardInfo("5105105105105100", expiryDate, 406, "Jackie");
+        String clientSessionId = "123456";
+        Map<String, Double> prices = new HashMap<>();
+        prices.put("Adult", 100D);
+        SeatStatus seatStatus = new SeatStatus(IN_PROCESS, 1000L, "654321");
+        Map<Integer, SeatStatus> occupied = new HashMap<>();
+        occupied.put(14, seatStatus);
+        occupied.put(15, seatStatus);
+        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, prices, occupied);
+        movieSession1.setId("1");
+        Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
+        customerGroupQuantityMap.put("Adult", 2);
+        Order order = new Order("abc@bbc.com", "20998372", "1", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
+        when(movieSessionRepository.findById("1")).thenReturn(Optional.of(movieSession1));
+        //when
+        //then
+        assertThrows(UnavailableSeatException.class, () -> {
+            orderService.create(order, creditCardInfo, clientSessionId);
+        });
+    }
+
 }
