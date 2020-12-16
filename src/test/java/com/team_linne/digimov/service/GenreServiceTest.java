@@ -168,4 +168,4 @@ public class GenreServiceTest {
         //then
         verify(movieService, times(1)).deleteGenreId("1");
     }
-}
+
