@@ -60,6 +60,7 @@ public class MovieSessionService {
 
         if (shouldUpdateStatusToInProcess(statusOfFirstSeatIndex)) { // available
             updateStatusToInProcess(id, movieSessionPatchRequest, occupied);
+            createTimeoutThread(id, movieSessionPatchRequest.getBookedSeatIndices());
         }
         else {
             updateStatusToAvailable(movieSessionPatchRequest, movieSession, occupied);
@@ -86,8 +87,11 @@ public class MovieSessionService {
         movieSessionPatchRequest.getBookedSeatIndices().forEach(seatIndex -> {
             SeatStatus seatStatus = new SeatStatus(IN_PROCESS, System.currentTimeMillis(), movieSessionPatchRequest.getClientSessionId());
             occupied.put(seatIndex, seatStatus);
-            seatStatusTimeoutService.startSeatStatusCountdown(id, seatIndex);
         });
+    }
+
+    private void createTimeoutThread(String movieSessionId, List<Integer> seatIndices) {
+        seatStatusTimeoutService.startSeatStatusCountdown(movieSessionId, seatIndices);
     }
 
     private boolean shouldUpdateStatusToInProcess(String statusOfFirstSeatIndex) {
