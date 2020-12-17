@@ -1,10 +1,8 @@
 package com.team_linne.digimov.service;
 
+import com.sun.xml.internal.stream.Entity;
 import com.team_linne.digimov.exception.*;
-import com.team_linne.digimov.model.CreditCardInfo;
-import com.team_linne.digimov.model.MovieSession;
-import com.team_linne.digimov.model.Order;
-import com.team_linne.digimov.model.SeatStatus;
+import com.team_linne.digimov.model.*;
 import com.team_linne.digimov.repository.MovieSessionRepository;
 import com.team_linne.digimov.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,5 +103,9 @@ public class OrderService {
             }
         }
         return true;
+    }
+
+    public List<Order> getOrderHistoryByIdentity(Identity identity) {
+        return orderRepository.findAllByEmailAndCreditcardnumber(identity.getEmail(),identity.getCardNumber());
     }
 }

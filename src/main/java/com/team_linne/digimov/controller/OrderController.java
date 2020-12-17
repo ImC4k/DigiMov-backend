@@ -4,6 +4,7 @@ import com.team_linne.digimov.dto.OrderRequest;
 import com.team_linne.digimov.dto.OrderResponse;
 import com.team_linne.digimov.mapper.MovieSessionMapper;
 import com.team_linne.digimov.mapper.OrderMapper;
+import com.team_linne.digimov.model.Identity;
 import com.team_linne.digimov.model.MovieSession;
 import com.team_linne.digimov.model.Order;
 import com.team_linne.digimov.service.MovieSessionService;
@@ -65,5 +66,11 @@ public class OrderController {
     private OrderResponse getOrderResponse(Order order) {
         MovieSession movieSession = movieSessionService.getById(order.getMovieSessionId());
         return orderMapper.toResponse(order, movieSessionMapper.toResponse(movieSession));
+    }
+    @PostMapping("/history")
+    public List<OrderResponse> viewOrderHistory(@RequestBody Identity identity){
+        return orderService.getOrderHistoryByIdentity(identity).
+                stream().map(this::getOrderResponse).collect(Collectors.toList());
+
     }
 }
