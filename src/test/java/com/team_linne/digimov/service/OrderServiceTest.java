@@ -358,5 +358,46 @@ public class OrderServiceTest {
         assertEquals(orderList, actual);
     }
 
+    @Test
+    void should_return_updated_order_and_update_seat_status_when_update_seat_given_valid_seat_indices() {
+        //given
+        ExpiryDate expiryDate = new ExpiryDate("4", "2043");
+        CreditCardInfo creditCardInfo = new CreditCardInfo("5105105105105100", expiryDate, 406, "Jackie");
+        String clientSessionId = "123456";
+        Map<String, Double> prices = new HashMap<>();
+        prices.put("Adult", 100D);
+        prices.put("Student", 60D);
+        SeatStatus seatStatus = new SeatStatus(SOLD, 1000L, "123456");
+        Map<Integer, SeatStatus> occupied = new HashMap<>();
+        occupied.put(14, seatStatus);
+        occupied.put(15, seatStatus);
+        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, prices, occupied);
+        movieSession1.setId("1");
+        Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
+        customerGroupQuantityMap.put("Adult", 2);
+        customerGroupQuantityMap.put("Student", 1);
+        Order order = new Order("abc@bbc.com", "1", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
+        order.setId("1");
+        Map<Integer, SeatStatus> occupied2 = new HashMap<>();
+        occupied2.put(19, seatStatus);
+        occupied2.put(20, seatStatus);
+        Order order2 = new Order("abc@bbc.com", "1", Arrays.asList(19, 20), customerGroupQuantityMap, "5105105105105100");
+        order2.setId("1");
+        MovieSession movieSession2 = new MovieSession("mov1", "111", 10000L, prices, occupied2);
+        when(orderRepository.findById("1")).thenReturn(Optional.of(order));
+        when(orderRepository.save(any(Order.class))).thenReturn(order2);
+        when(movieSessionRepository.findById("1")).thenReturn(Optional.of(movieSession1));
+        when(movieSessionRepository.save(any())).thenReturn(movieSession2);
+        //when
+        Order actual = orderService.updateSeat(Arrays.asList(19,20),"1");
+        //then
+        assertEquals(Arrays.asList(19,20),actual.getBookedSeatIndices());
+        assertEquals(SOLD,movieSessionRepository.findById(actual.getMovieSessionId()).get().getOccupied().get(19).getStatus());
+        assertEquals(SOLD,movieSessionRepository.findById(actual.getMovieSessionId()).get().getOccupied().get(20).getStatus());
+        assertNull(movieSessionRepository.findById(actual.getMovieSessionId()).get().getOccupied().get(14));
+        assertNull(movieSessionRepository.findById(actual.getMovieSessionId()).get().getOccupied().get(15));
+    }
+
+
 
 }
