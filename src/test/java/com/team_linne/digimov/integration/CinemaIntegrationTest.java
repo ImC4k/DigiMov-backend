@@ -3,6 +3,7 @@ package com.team_linne.digimov.integration;
 import com.team_linne.digimov.model.Cinema;
 import com.team_linne.digimov.repository.CinemaRepository;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -24,6 +25,7 @@ public class CinemaIntegrationTest {
     CinemaRepository cinemaRepository;
 
     @AfterEach
+    @BeforeEach
     void tearDown() {
         cinemaRepository.deleteAll();
     }

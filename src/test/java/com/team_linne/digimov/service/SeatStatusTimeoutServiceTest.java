@@ -13,6 +13,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.Thread.sleep;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -42,7 +44,7 @@ public class SeatStatusTimeoutServiceTest {
         seatStatusTimeoutService.setTimeoutInSeconds(1000);
         when(movieSessionService.getById(movieSession.getId())).thenReturn(movieSession);
         //when
-        seatStatusTimeoutService.startSeatStatusCountdown(movieSession.getId(), 1);
+        seatStatusTimeoutService.startSeatStatusCountdown(movieSession.getId(), Stream.of(1).collect(Collectors.toList()));
         try {
             sleep(1500);
         } catch (InterruptedException e) {
@@ -67,7 +69,7 @@ public class SeatStatusTimeoutServiceTest {
         seatStatusTimeoutService.setTimeoutInSeconds(1000);
         when(movieSessionService.getById(movieSession.getId())).thenReturn(movieSession);
         //when
-        seatStatusTimeoutService.startSeatStatusCountdown(movieSession.getId(), 1);
+        seatStatusTimeoutService.startSeatStatusCountdown(movieSession.getId(), Stream.of(1).collect(Collectors.toList()));
         try {
             sleep(1500);
         } catch (InterruptedException e) {
@@ -89,7 +91,7 @@ public class SeatStatusTimeoutServiceTest {
         seatStatusTimeoutService.setTimeoutInSeconds(1000);
         when(movieSessionService.getById(movieSession.getId())).thenReturn(movieSession);
         //when
-        seatStatusTimeoutService.startSeatStatusCountdown(movieSession.getId(), 999);
+        seatStatusTimeoutService.startSeatStatusCountdown(movieSession.getId(), Stream.of(1).collect(Collectors.toList()));
         try {
             sleep(1500);
         } catch (InterruptedException e) {

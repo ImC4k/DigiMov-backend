@@ -7,11 +7,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.lang.Thread.sleep;
 
@@ -31,8 +33,9 @@ public class SeatStatusTimeoutService {
         this.timeoutInSeconds = timeoutValue;
     }
 
-    public void startSeatStatusCountdown(final String movieSessionId, final Integer seatIndex) {
+    public void startSeatStatusCountdown(final String movieSessionId, final List<Integer> seatIndices) {
         final int id = new Random().nextInt();
+        AtomicBoolean shouldUpdateDb = new AtomicBoolean(false);
         timeoutThreads.put(id, taskExecutor.submit(() -> {
             try {
                 sleep(timeoutInSeconds);
@@ -40,9 +43,13 @@ public class SeatStatusTimeoutService {
                 e.printStackTrace();
             }
             MovieSession movieSession = movieSessionService.getById(movieSessionId);
-            if (movieSession.getOccupied().containsKey(seatIndex) && movieSession.getOccupied().get(seatIndex).getStatus().equals(MovieSessionService.IN_PROCESS)) {
-                // delete the entry
-                movieSession.getOccupied().remove(seatIndex);
+            seatIndices.forEach(seatIndex -> {
+                if (movieSession.getOccupied().containsKey(seatIndex) && movieSession.getOccupied().get(seatIndex).getStatus().equals(MovieSessionService.IN_PROCESS)) {
+                    movieSession.getOccupied().remove(seatIndex);
+                    shouldUpdateDb.set(true);
+                }
+            });
+            if (shouldUpdateDb.get()) {
                 movieSessionService.update(movieSessionId, movieSession);
             }
             timeoutThreads.remove(id);
