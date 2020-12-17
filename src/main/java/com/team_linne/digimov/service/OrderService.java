@@ -114,6 +114,9 @@ public class OrderService {
     public Order updateSeat(List<Integer> seatIndices, String id) {
         Order order = this.getById(id);
         MovieSession movieSession = movieSessionRepository.findById(order.getMovieSessionId()).orElseThrow(MovieSessionNotFoundException::new);
+        if (movieSession.getStartTime()<System.currentTimeMillis()){
+            throw new MovieSessionOverException();
+        }
         seatIndices.forEach(seatIndex->{
             SeatStatus seatStatus = movieSession.getOccupied().get(seatIndex);
             if ((seatStatus!=null)&&(seatStatus.getStatus().equals(IN_PROCESS))){
