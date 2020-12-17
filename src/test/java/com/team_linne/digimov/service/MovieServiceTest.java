@@ -1,7 +1,6 @@
 package com.team_linne.digimov.service;
 
 import com.team_linne.digimov.exception.MovieNotFoundException;
-import com.team_linne.digimov.model.Genre;
 import com.team_linne.digimov.model.Movie;
 import com.team_linne.digimov.repository.GenreRepository;
 import com.team_linne.digimov.repository.MovieRepository;
@@ -12,7 +11,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -38,8 +36,8 @@ public class MovieServiceTest {
     @Test
     void should_return_all_movies_when_get_all_given_list_of_movies() {
         //given
-        Movie movie1 = new Movie("movie1",123, new ArrayList<>(),"John","a movie","movie1.jpg","8", new ArrayList<>(), "Cantonese");
-        Movie movie2 = new Movie("movie2",156, new ArrayList<>(),"James","a good movie","movie2.jpg","9", new ArrayList<>(), "English");
+        Movie movie1 = new Movie("movie1", 123, new ArrayList<>(), "John", "a movie", "movie1.jpg", "8", new ArrayList<>(), "Cantonese");
+        Movie movie2 = new Movie("movie2", 156, new ArrayList<>(), "James", "a good movie", "movie2.jpg", "9", new ArrayList<>(), "English");
         List<Movie> movieList = new ArrayList<>();
         movieList.add(movie1);
         movieList.add(movie2);
@@ -68,8 +66,8 @@ public class MovieServiceTest {
     @Test
     void should_return_specific_movie_when_get_by_id_given_list_of_movies_and_valid_movie_id() {
         //given
-        Movie movie1 = new Movie("movie1",123, new ArrayList<>(),"John","a movie","movie1.jpg","8", new ArrayList<>(), "Cantonese");
-        Movie movie2 = new Movie("movie2",156, new ArrayList<>(),"James","a good movie","movie2.jpg","9", new ArrayList<>(), "English");
+        Movie movie1 = new Movie("movie1", 123, new ArrayList<>(), "John", "a movie", "movie1.jpg", "8", new ArrayList<>(), "Cantonese");
+        Movie movie2 = new Movie("movie2", 156, new ArrayList<>(), "James", "a good movie", "movie2.jpg", "9", new ArrayList<>(), "English");
         movie1.setId("1");
         movie2.setId("2");
         List<Movie> movieList = new ArrayList<>();
@@ -97,7 +95,7 @@ public class MovieServiceTest {
     @Test
     void should_return_created_movie_when_create_movie_given_new_movie() {
         //given
-        Movie movie = new Movie("movie1",123, new ArrayList<>(),"John","a movie","movie1.jpg","8", new ArrayList<>(), "Cantonese");
+        Movie movie = new Movie("movie1", 123, new ArrayList<>(), "John", "a movie", "movie1.jpg", "8", new ArrayList<>(), "Cantonese");
         when(movieRepository.save(movie)).thenReturn(movie);
 
         //when
@@ -110,8 +108,8 @@ public class MovieServiceTest {
     @Test
     void should_return_updated_movie_when_update_movie_given_movie_id_and_updated_movie_info() {
         //given
-        Movie movie1 = new Movie("movie1",123, new ArrayList<>(),"John","a movie","movie1.jpg","8", new ArrayList<>(), "Cantonese");
-        Movie movie2 = new Movie("movie2",156, new ArrayList<>(),"James","a good movie","movie2.jpg","9", new ArrayList<>(), "English");
+        Movie movie1 = new Movie("movie1", 123, new ArrayList<>(), "John", "a movie", "movie1.jpg", "8", new ArrayList<>(), "Cantonese");
+        Movie movie2 = new Movie("movie2", 156, new ArrayList<>(), "James", "a good movie", "movie2.jpg", "9", new ArrayList<>(), "English");
         movie1.setId("1");
         when(movieRepository.findById("1")).thenReturn(Optional.of(movie1));
         when(movieRepository.save(any(Movie.class))).thenReturn(movie2);
@@ -126,7 +124,7 @@ public class MovieServiceTest {
     @Test
     void should_throw_movie_not_found_exception_when_update_movie_given_invalid_movie_id_and_updated_movie_info() {
         //given
-        Movie movie1 = new Movie("movie1",123, new ArrayList<>(),"John","a movie","movie1.jpg","8", new ArrayList<>(), "Cantonese");
+        Movie movie1 = new Movie("movie1", 123, new ArrayList<>(), "John", "a movie", "movie1.jpg", "8", new ArrayList<>(), "Cantonese");
         movie1.setId("1");
 
         //when
@@ -139,7 +137,7 @@ public class MovieServiceTest {
     @Test
     void should_delete_movie_when_delete_movie_given_valid_movie_id() {
         //given
-        Movie movie1 = new Movie("movie1",123, new ArrayList<>(),"John","a movie","movie1.jpg","8", new ArrayList<>(), "Cantonese");
+        Movie movie1 = new Movie("movie1", 123, new ArrayList<>(), "John", "a movie", "movie1.jpg", "8", new ArrayList<>(), "Cantonese");
         movie1.setId("1");
         when(movieRepository.findById("1")).thenReturn(Optional.of(movie1));
 
@@ -162,8 +160,8 @@ public class MovieServiceTest {
 
     @Test
     void should_call_update_2_time_when_delete_genre_id_given_2_movies_originally_contained_test_id() {
-        Movie movie1 = new Movie("movie1",123, Stream.of("1", "2").collect(Collectors.toList()), "John","a movie","movie1.jpg","8", new ArrayList<>(), "Cantonese");
-        Movie movie2 = new Movie("movie2",123, Stream.of("1", "2").collect(Collectors.toList()),"John","a movie","movie1.jpg","8", new ArrayList<>(), "Cantonese");
+        Movie movie1 = new Movie("movie1", 123, Stream.of("1", "2").collect(Collectors.toList()), "John", "a movie", "movie1.jpg", "8", new ArrayList<>(), "Cantonese");
+        Movie movie2 = new Movie("movie2", 123, Stream.of("1", "2").collect(Collectors.toList()), "John", "a movie", "movie1.jpg", "8", new ArrayList<>(), "Cantonese");
         when(movieRepository.findAllByGenreIdsIn(any())).thenReturn(Stream.of(movie1, movie2).collect(Collectors.toList()));
 
         // when
