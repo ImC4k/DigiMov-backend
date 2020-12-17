@@ -31,6 +31,8 @@ public class MovieSessionService {
     private MovieService movieService;
     @Autowired
     private HouseService houseService;
+    @Autowired
+    private OrderService orderService;
 
     public List<MovieSession> getAll() {
         return this.movieSessionRepository.findAll();
@@ -61,8 +63,7 @@ public class MovieSessionService {
 
         if (shouldUpdateStatusToInProcess(statusOfFirstSeatIndex)) { // available
             updateStatusToInProcess(id, movieSessionPatchRequest, occupied);
-        }
-        else {
+        } else {
             updateStatusToAvailable(movieSessionPatchRequest, movieSession, occupied);
         }
         movieSession.setOccupied(occupied);
@@ -112,6 +113,9 @@ public class MovieSessionService {
     public void delete(String id) {
         MovieSession movieSession = this.getById(id);
         this.movieSessionRepository.deleteById(movieSession.getId());
+        if (orderService != null) {
+            orderService.deleteOrderWithMovieSessionId(id);
+        }
     }
 
     public List<MovieSession> getUpcomingMovieSessionsByCinemaId(String cinemaId) {
