@@ -41,11 +41,18 @@ public class MovieSessionIntegrationTest {
     @AfterEach
     void tearDown() {
         movieSessionRepository.deleteAll();
+        movieRepository.deleteAll();
+        houseRepository.deleteAll();
+        cinemaRepository.deleteAll();
     }
 
     @Test
     public void should_return_all_movie_session_when_get_all_given_movie_session_list() throws Exception {
         //given
+        Movie movie = movieRepository.save(new Movie());
+        Cinema cinema = cinemaRepository.save(new Cinema());
+        House house = houseRepository.save(House.builder().cinemaId(cinema.getId()).build());
+
         Map<String, Double> prices = new HashMap<>();
         prices.put("Student", 50.0);
         prices.put("Adult", 100.0);
@@ -54,7 +61,7 @@ public class MovieSessionIntegrationTest {
         occupied.put(1, new SeatStatus("Available", 10000L, "555"));
         occupied.put(2, new SeatStatus("Sold", 10000L, "555"));
 
-        MovieSession movieSession = new MovieSession("mov1", "123", 10000L, prices, occupied);
+        MovieSession movieSession = new MovieSession(movie.getId(), house.getId(), 10000L, prices, occupied);
 
         movieSessionRepository.save(movieSession);
 
@@ -63,8 +70,8 @@ public class MovieSessionIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/movie_sessions"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").isString())
-                .andExpect(jsonPath("$[0].movieId").value("mov1"))
-                .andExpect(jsonPath("$[0].houseId").value("123"))
+                .andExpect(jsonPath("$[0].movie.id").value(movie.getId()))
+                .andExpect(jsonPath("$[0].house.id").value(house.getId()))
                 .andExpect(jsonPath("$[0].startTime").value(10000L))
                 .andExpect(jsonPath("$[0].prices").isMap())
                 .andExpect(jsonPath("$[0].occupied").isMap());
@@ -72,6 +79,10 @@ public class MovieSessionIntegrationTest {
 
     @Test
     public void should_return_specific_movie_session_when_get_movie_session_given_valid_movie_session_id() throws Exception {
+        Movie movie = movieRepository.save(new Movie());
+        Cinema cinema = cinemaRepository.save(new Cinema());
+        House house = houseRepository.save(House.builder().cinemaId(cinema.getId()).build());
+
         Map<String, Double> prices = new HashMap<>();
         prices.put("Student", 50.0);
         prices.put("Adult", 100.0);
@@ -80,15 +91,15 @@ public class MovieSessionIntegrationTest {
         occupied.put(1, new SeatStatus("Available", 10000L, "555"));
         occupied.put(2, new SeatStatus("Sold", 10000L, "555"));
 
-        MovieSession movieSession = new MovieSession("mov1", "123", 10000L, prices, occupied);
+        MovieSession movieSession = new MovieSession(movie.getId(), house.getId(), 10000L, prices, occupied);
 
         movieSessionRepository.save(movieSession);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/movie_sessions/" + movieSession.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isString())
-                .andExpect(jsonPath("$.movieId").value("mov1"))
-                .andExpect(jsonPath("$.houseId").value("123"))
+                .andExpect(jsonPath("$.movie.id").value(movie.getId()))
+                .andExpect(jsonPath("$.house.id").value(house.getId()))
                 .andExpect(jsonPath("$.startTime").value(10000L))
                 .andExpect(jsonPath("$.prices").isMap())
                 .andExpect(jsonPath("$.occupied").isMap());
@@ -110,9 +121,13 @@ public class MovieSessionIntegrationTest {
 
     @Test
     public void should_return_created_movie_session_when_create_movie_session_given_complete_new_movie_session_info() throws Exception {
+        Movie movie = movieRepository.save(new Movie());
+        Cinema cinema = cinemaRepository.save(new Cinema());
+        House house = houseRepository.save(House.builder().cinemaId(cinema.getId()).build());
+
         String movieSessionAsJson = "{\n" +
-                "    \"movieId\": \"mov1\",\n" +
-                "    \"houseId\": \"house1\",\n" +
+                "    \"movieId\": \"" + movie.getId() + "\",\n" +
+                "    \"houseId\": \"" + house.getId() + "\",\n" +
                 "    \"startTime\": 10000,\n" +
                 "    \"prices\": {\n" +
                 "        \"Elderly\": 25.0,\n" +
@@ -133,8 +148,8 @@ public class MovieSessionIntegrationTest {
                 .content(movieSessionAsJson))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").isString())
-                .andExpect(jsonPath("$.movieId").value("mov1"))
-                .andExpect(jsonPath("$.houseId").value("house1"))
+                .andExpect(jsonPath("$.movie.id").value(movie.getId()))
+                .andExpect(jsonPath("$.house.id").value(house.getId()))
                 .andExpect(jsonPath("$.startTime").value(10000L))
                 .andExpect(jsonPath("$.prices").isMap())
                 .andExpect(jsonPath("$.occupied").isMap());
@@ -142,9 +157,13 @@ public class MovieSessionIntegrationTest {
 
     @Test
     public void should_return_created_incomplete_movie_session_when_create_movie_session_given_incomplete_new_movie_session_info() throws Exception {
+        Movie movie = movieRepository.save(new Movie());
+        Cinema cinema = cinemaRepository.save(new Cinema());
+        House house = houseRepository.save(House.builder().cinemaId(cinema.getId()).build());
+
         String movieSessionAsJson = "{\n" +
-                "    \"movieId\": \"mov1\",\n" +
-                "    \"houseId\": \"house1\",\n" +
+                "    \"movieId\": \"" + movie.getId() + "\",\n" +
+                "    \"houseId\": \"" + house.getId() + "\",\n" +
                 "    \"prices\": {\n" +
                 "        \"Elderly\": 25.0,\n" +
                 "        \"Adult\": 100.0\n" +
@@ -158,8 +177,8 @@ public class MovieSessionIntegrationTest {
                 .content(movieSessionAsJson))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").isString())
-                .andExpect(jsonPath("$.movieId").value("mov1"))
-                .andExpect(jsonPath("$.houseId").value("house1"))
+                .andExpect(jsonPath("$.movie.id").value(movie.getId()))
+                .andExpect(jsonPath("$.house.id").value(house.getId()))
                 .andExpect(jsonPath("$.startTime").isEmpty())
                 .andExpect(jsonPath("$.prices").isMap())
                 .andExpect(jsonPath("$.occupied").isEmpty());
@@ -167,12 +186,15 @@ public class MovieSessionIntegrationTest {
 
     @Test
     public void should_return_updated_movie_session_when_update_movie_given_valid_movie_session_id_and_movie_session_update_info() throws Exception {
-        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
-        movieSessionRepository.insert(movieSession1);
+        Movie movie = movieRepository.save(new Movie());
+        Cinema cinema = cinemaRepository.save(new Cinema());
+        House house = houseRepository.save(House.builder().cinemaId(cinema.getId()).build());
+
+        MovieSession movieSession1 = movieSessionRepository.insert(new MovieSession(movie.getId(), house.getId(), 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>()));
 
         String movieSessionAsJson = "{\n" +
-                "    \"movieId\": \"mov1\",\n" +
-                "    \"houseId\": \"house1\",\n" +
+                "    \"movieId\": \"" + movie.getId() + "\",\n" +
+                "    \"houseId\": \"" + house.getId() + "\",\n" +
                 "    \"startTime\": 10000,\n" +
                 "    \"prices\": {\n" +
                 "        \"Elderly\": 25.0,\n" +
@@ -194,8 +216,8 @@ public class MovieSessionIntegrationTest {
                 .content(movieSessionAsJson))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isString())
-                .andExpect(jsonPath("$.movieId").value("mov1"))
-                .andExpect(jsonPath("$.houseId").value("house1"))
+                .andExpect(jsonPath("$.movie.id").value(movie.getId()))
+                .andExpect(jsonPath("$.house.id").value(house.getId()))
                 .andExpect(jsonPath("$.startTime").value(10000L))
                 .andExpect(jsonPath("$.prices").isMap())
                 .andExpect(jsonPath("$.occupied").isMap());
@@ -203,12 +225,16 @@ public class MovieSessionIntegrationTest {
 
     @Test
     public void should_return_404_not_found_when_update_movie_session_given_invalid_movie_session_id_and_movie_session_update_info() throws Exception {
-        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        Movie movie = movieRepository.save(new Movie());
+        Cinema cinema = cinemaRepository.save(new Cinema());
+        House house = houseRepository.save(House.builder().cinemaId(cinema.getId()).build());
+
+        MovieSession movieSession1 = new MovieSession(movie.getId(), house.getId(), 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
         movieSessionRepository.insert(movieSession1);
 
         String movieSessionAsJson = "{\n" +
-                "    \"movieId\": \"mov1\",\n" +
-                "    \"houseId\": \"house1\",\n" +
+                "    \"movieId\": \"" + movie.getId() + "\",\n" +
+                "    \"houseId\": \"" + house.getId() + "\",\n" +
                 "    \"startTime\": 10000,\n" +
                 "    \"prices\": {\n" +
                 "        \"Elderly\": 25.0,\n" +
@@ -231,12 +257,16 @@ public class MovieSessionIntegrationTest {
 
     @Test
     public void should_return_400_bad_request_when_update_movie_session_given_invalid_movie_session_id_and_movie_session_update_info() throws Exception {
-        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        Movie movie = movieRepository.save(new Movie());
+        Cinema cinema = cinemaRepository.save(new Cinema());
+        House house = houseRepository.save(House.builder().cinemaId(cinema.getId()).build());
+
+        MovieSession movieSession1 = new MovieSession(movie.getId(), house.getId(), 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
         movieSessionRepository.insert(movieSession1);
 
         String movieSessionAsJson = "{\n" +
-                "    \"movieId\": \"mov1\",\n" +
-                "    \"houseId\": \"house1\",\n" +
+                "    \"movieId\": \"" + movie.getId() + "\",\n" +
+                "    \"houseId\": \"" + house.getId() + "\",\n" +
                 "    \"startTime\": 10000,\n" +
                 "    \"prices\": {\n" +
                 "        \"Elderly\": 25.0,\n" +
@@ -260,7 +290,11 @@ public class MovieSessionIntegrationTest {
     @Test
     void should_return_updated_movie_session_which_seat_indices_are_in_process_when_patch_given_original_seat_indices_were_available_and_valid_movie_session_id() throws Exception {
         //given
-        MovieSession movieSession = new MovieSession("mov1", "hse1", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        Movie movie = movieRepository.save(new Movie());
+        Cinema cinema = cinemaRepository.save(new Cinema());
+        House house = houseRepository.save(House.builder().cinemaId(cinema.getId()).build());
+
+        MovieSession movieSession = new MovieSession(movie.getId(), house.getId(), 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
         MovieSession inserted = movieSessionRepository.insert(movieSession);
 
         String movieSessionPatchRequest = "{\n" +
@@ -275,8 +309,8 @@ public class MovieSessionIntegrationTest {
                 .content(movieSessionPatchRequest))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isString())
-                .andExpect(jsonPath("$.movieId").value("mov1"))
-                .andExpect(jsonPath("$.houseId").value("hse1"))
+                .andExpect(jsonPath("$.movie.id").value(movie.getId()))
+                .andExpect(jsonPath("$.house.id").value(house.getId()))
                 .andExpect(jsonPath("$.startTime").value("10000"))
                 .andExpect(jsonPath("$.prices").isEmpty())
                 .andExpect(jsonPath("$.occupied.1.status").value("in process"))
@@ -285,11 +319,15 @@ public class MovieSessionIntegrationTest {
 
     @Test
     void should_return_403_forbidden_when_patch_given_original_seat_indices_were_sold_and_valid_movie_session_id() throws Exception {
+        Movie movie = movieRepository.save(new Movie());
+        Cinema cinema = cinemaRepository.save(new Cinema());
+        House house = houseRepository.save(House.builder().cinemaId(cinema.getId()).build());
+
         Map<Integer, SeatStatus> occupied = new HashMap<>();
         occupied.put(1, new SeatStatus("sold", 10000L, "qazwsxedc"));
         occupied.put(2, new SeatStatus("sold", 10000L, "qazwsxedc"));
 
-        MovieSession movieSession = new MovieSession("mov1", "hse1", 10000L, new HashMap<String, Double>(), occupied);
+        MovieSession movieSession = new MovieSession(movie.getId(), house.getId(), 10000L, new HashMap<String, Double>(), occupied);
         MovieSession inserted = movieSessionRepository.insert(movieSession);
 
         String movieSessionPatchRequest = "{\n" +
@@ -308,7 +346,11 @@ public class MovieSessionIntegrationTest {
     @Test
     void should_return_404_not_found_when_patch_given_invalid_movie_session_id() throws Exception {
         //given
-        MovieSession movieSession = new MovieSession("mov1", "hse1", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        Movie movie = movieRepository.save(new Movie());
+        Cinema cinema = cinemaRepository.save(new Cinema());
+        House house = houseRepository.save(House.builder().cinemaId(cinema.getId()).build());
+
+        MovieSession movieSession = new MovieSession(movie.getId(), house.getId(), 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
         MovieSession inserted = movieSessionRepository.insert(movieSession);
 
         //when
@@ -328,11 +370,15 @@ public class MovieSessionIntegrationTest {
     @Test
     void should_return_401_unauthorized_when_patch_given_original_seat_indices_were_in_process_and_valid_movie_session_id_but_client_session_id_does_not_match() throws Exception {
         //given
+        Movie movie = movieRepository.save(new Movie());
+        Cinema cinema = cinemaRepository.save(new Cinema());
+        House house = houseRepository.save(House.builder().cinemaId(cinema.getId()).build());
+
         Map<Integer, SeatStatus> occupied = new HashMap<>();
         occupied.put(1, new SeatStatus("in process", 10000L, "qazwsxedc"));
         occupied.put(2, new SeatStatus("in process", 10000L, "qazwsxedc"));
 
-        MovieSession movieSession = new MovieSession("mov1", "hse1", 10000L, new HashMap<String, Double>(), occupied);
+        MovieSession movieSession = new MovieSession(movie.getId(), house.getId(), 10000L, new HashMap<String, Double>(), occupied);
         MovieSession inserted = movieSessionRepository.insert(movieSession);
 
         //when
@@ -350,7 +396,11 @@ public class MovieSessionIntegrationTest {
     @Test
     void should_allow_other_client_session_id_update_seat_status_when_patch_given_first_client_session_timed_out() throws Exception {
         //given
-        MovieSession movieSession = new MovieSession("mov1", "hse1", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        Movie movie = movieRepository.save(new Movie());
+        Cinema cinema = cinemaRepository.save(new Cinema());
+        House house = houseRepository.save(House.builder().cinemaId(cinema.getId()).build());
+
+        MovieSession movieSession = new MovieSession(movie.getId(), house.getId(), 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
         MovieSession inserted = movieSessionRepository.insert(movieSession);
 
         String movieSessionPatchRequest = "{\n" +
@@ -363,8 +413,8 @@ public class MovieSessionIntegrationTest {
                 .content(movieSessionPatchRequest))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isString())
-                .andExpect(jsonPath("$.movieId").value("mov1"))
-                .andExpect(jsonPath("$.houseId").value("hse1"))
+                .andExpect(jsonPath("$.movie.id").value(movie.getId()))
+                .andExpect(jsonPath("$.house.id").value(house.getId()))
                 .andExpect(jsonPath("$.startTime").value("10000"))
                 .andExpect(jsonPath("$.prices").isEmpty())
                 .andExpect(jsonPath("$.occupied.1.status").value("in process"));
@@ -383,8 +433,8 @@ public class MovieSessionIntegrationTest {
                 .content(new_movieSessionPatchRequest))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isString())
-                .andExpect(jsonPath("$.movieId").value("mov1"))
-                .andExpect(jsonPath("$.houseId").value("hse1"))
+                .andExpect(jsonPath("$.movie.id").value(movie.getId()))
+                .andExpect(jsonPath("$.house.id").value(house.getId()))
                 .andExpect(jsonPath("$.startTime").value("10000"))
                 .andExpect(jsonPath("$.prices").isEmpty())
                 .andExpect(jsonPath("$.occupied.1.status").value("in process"));
@@ -393,7 +443,11 @@ public class MovieSessionIntegrationTest {
     @Test
     void should_allow_other_client_session_id_update_seat_status_when_patch_given_first_client_session_not_timed_out_yet() throws Exception {
         //given
-        MovieSession movieSession = new MovieSession("mov1", "hse1", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        Movie movie = movieRepository.save(new Movie());
+        Cinema cinema = cinemaRepository.save(new Cinema());
+        House house = houseRepository.save(House.builder().cinemaId(cinema.getId()).build());
+
+        MovieSession movieSession = new MovieSession(movie.getId(), house.getId(), 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
         MovieSession inserted = movieSessionRepository.insert(movieSession);
 
         String movieSessionPatchRequest = "{\n" +
@@ -406,8 +460,8 @@ public class MovieSessionIntegrationTest {
                 .content(movieSessionPatchRequest))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isString())
-                .andExpect(jsonPath("$.movieId").value("mov1"))
-                .andExpect(jsonPath("$.houseId").value("hse1"))
+                .andExpect(jsonPath("$.movie.id").value(movie.getId()))
+                .andExpect(jsonPath("$.house.id").value(house.getId()))
                 .andExpect(jsonPath("$.startTime").value("10000"))
                 .andExpect(jsonPath("$.prices").isEmpty())
                 .andExpect(jsonPath("$.occupied.1.status").value("in process"));
@@ -427,7 +481,11 @@ public class MovieSessionIntegrationTest {
 
     @Test
     public void should_delete_movie_when_delete_movie_given_valid_movie_id() throws Exception {
-        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        Movie movie = movieRepository.save(new Movie());
+        Cinema cinema = cinemaRepository.save(new Cinema());
+        House house = houseRepository.save(House.builder().cinemaId(cinema.getId()).build());
+
+        MovieSession movieSession1 = new MovieSession(movie.getId(), house.getId(), 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
         movieSessionRepository.insert(movieSession1);
 
         //when
@@ -438,7 +496,11 @@ public class MovieSessionIntegrationTest {
     @Test
     public void should_return_404_not_found_when_delete_movie_session_given_invalid_movie_id() throws Exception {
         //given
-        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        Movie movie = movieRepository.save(new Movie());
+        Cinema cinema = cinemaRepository.save(new Cinema());
+        House house = houseRepository.save(House.builder().cinemaId(cinema.getId()).build());
+
+        MovieSession movieSession1 = new MovieSession(movie.getId(), house.getId(), 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
         movieSessionRepository.insert(movieSession1);
 
         //when
@@ -450,7 +512,11 @@ public class MovieSessionIntegrationTest {
     @Test
     public void should_return_400_bad_request_when_delete_movie_session_given_invalid_movie_id() throws Exception {
         //given
-        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        Movie movie = movieRepository.save(new Movie());
+        Cinema cinema = cinemaRepository.save(new Cinema());
+        House house = houseRepository.save(House.builder().cinemaId(cinema.getId()).build());
+
+        MovieSession movieSession1 = new MovieSession(movie.getId(), house.getId(), 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
         movieSessionRepository.insert(movieSession1);
 
         //when
@@ -479,8 +545,8 @@ public class MovieSessionIntegrationTest {
         //then
         mockMvc.perform(MockMvcRequestBuilders.get("/movie_sessions?cinema=" + cinema1.getId()))
 //                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].houseId").value(house1.getId()))
-                .andExpect(jsonPath("$[1].houseId").value(house2.getId()))
+                .andExpect(jsonPath("$[0].house.id").value(house1.getId()))
+                .andExpect(jsonPath("$[1].house.id").value(house2.getId()))
                 .andExpect(jsonPath("$", hasSize(2)));
 
     }
@@ -506,7 +572,7 @@ public class MovieSessionIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/movie_sessions?cinema=" + cinema1.getId() + "&sessionStatus=upcoming"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(movieSession1.getId()))
-                .andExpect(jsonPath("$[0].houseId").value(house1.getId()))
+                .andExpect(jsonPath("$[0].house.id").value(house1.getId()))
                 .andExpect(jsonPath("$", hasSize(1)));
     }
 
@@ -533,17 +599,19 @@ public class MovieSessionIntegrationTest {
         //given
         Movie movie1 = movieRepository.save(new Movie());
         Movie movie2 = movieRepository.save(new Movie());
+        Cinema cinema = cinemaRepository.save(new Cinema());
+        House house = houseRepository.save(House.builder().cinemaId(cinema.getId()).build());
 
-        MovieSession movieSession1 = movieSessionRepository.save(MovieSession.builder().movieId(movie1.getId()).build());
-        MovieSession movieSession2 = movieSessionRepository.save(MovieSession.builder().movieId(movie1.getId()).build());
-        MovieSession movieSession3 = movieSessionRepository.save(MovieSession.builder().movieId(movie2.getId()).build());
+        MovieSession movieSession1 = movieSessionRepository.save(MovieSession.builder().movieId(movie1.getId()).houseId(house.getId()).build());
+        MovieSession movieSession2 = movieSessionRepository.save(MovieSession.builder().movieId(movie1.getId()).houseId(house.getId()).build());
+        MovieSession movieSession3 = movieSessionRepository.save(MovieSession.builder().movieId(movie2.getId()).houseId(house.getId()).build());
 
         //when
         //then
         mockMvc.perform(MockMvcRequestBuilders.get("/movie_sessions?movie=" + movie1.getId()))
-//                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].movieId").value(movie1.getId()))
-                .andExpect(jsonPath("$[1].movieId").value(movie1.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].movie.id").value(movie1.getId()))
+                .andExpect(jsonPath("$[1].movie.id").value(movie1.getId()))
                 .andExpect(jsonPath("$", hasSize(2)));
 
     }
@@ -553,9 +621,11 @@ public class MovieSessionIntegrationTest {
         //given
         Movie movie1 = movieRepository.save(new Movie());
         Movie movie2 = movieRepository.save(new Movie());
+        Cinema cinema = cinemaRepository.save(new Cinema());
+        House house = houseRepository.save(House.builder().cinemaId(cinema.getId()).build());
 
-        MovieSession movieSession1 = movieSessionRepository.save(MovieSession.builder().movieId(movie1.getId()).startTime(System.currentTimeMillis() + 100000).build());
-        MovieSession movieSession2 = movieSessionRepository.save(MovieSession.builder().movieId(movie1.getId()).startTime(System.currentTimeMillis() - 100000).build());
+        MovieSession movieSession1 = movieSessionRepository.save(MovieSession.builder().movieId(movie1.getId()).houseId(house.getId()).startTime(System.currentTimeMillis() + 100000).build());
+        MovieSession movieSession2 = movieSessionRepository.save(MovieSession.builder().movieId(movie1.getId()).houseId(house.getId()).startTime(System.currentTimeMillis() - 100000).build());
         MovieSession movieSession3 = movieSessionRepository.save(MovieSession.builder().movieId(movie2.getId()).build());
 
         //when
@@ -563,7 +633,7 @@ public class MovieSessionIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/movie_sessions?movie=" + movie1.getId() + "&sessionStatus=upcoming"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(movieSession1.getId()))
-                .andExpect(jsonPath("$[0].movieId").value(movie1.getId()))
+                .andExpect(jsonPath("$[0].movie.id").value(movie1.getId()))
                 .andExpect(jsonPath("$", hasSize(1)));
     }
 

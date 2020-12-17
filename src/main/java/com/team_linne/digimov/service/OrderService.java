@@ -1,10 +1,8 @@
 package com.team_linne.digimov.service;
 
+import com.team_linne.digimov.dto.OrderResponse;
 import com.team_linne.digimov.exception.*;
-import com.team_linne.digimov.model.CreditCardInfo;
-import com.team_linne.digimov.model.MovieSession;
-import com.team_linne.digimov.model.Order;
-import com.team_linne.digimov.model.SeatStatus;
+import com.team_linne.digimov.model.*;
 import com.team_linne.digimov.repository.MovieSessionRepository;
 import com.team_linne.digimov.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,14 +52,15 @@ public class OrderService {
             }
         });
         updateSeatStatus(order, movieSession);
+
         return orderRepository.save(order);
     }
 
     public Order update(String id, Order orderUpdate, CreditCardInfo creditCardInfo, String clientSessionId) {
         Order order = this.getById(id);
         MovieSession movieSession = movieSessionRepository.findById(order.getMovieSessionId()).orElseThrow(MovieSessionNotFoundException::new);
-        Map<Integer,SeatStatus> occupied = movieSession.getOccupied();
-        order.getBookedSeatIndices().forEach(seatId->{
+        Map<Integer, SeatStatus> occupied = movieSession.getOccupied();
+        order.getBookedSeatIndices().forEach(seatId -> {
             occupied.remove(seatId);
         });
         movieSession.setOccupied(occupied);
@@ -72,11 +71,16 @@ public class OrderService {
 
     private void updateSeatStatus(Order order, MovieSession movieSession) {
         order.getBookedSeatIndices().forEach(seatId -> {
-            SeatStatus seatStatus = movieSession.getOccupied().get(seatId);
-            seatStatus.setStatus(SOLD);
-            seatStatus.setClientSessionId(null);
-            seatStatus.setProcessStartTime(null);
+            if (movieSession.getOccupied().containsKey(seatId)) {
+                SeatStatus seatStatus = movieSession.getOccupied().get(seatId);
+                seatStatus.setStatus(SOLD);
+                seatStatus.setClientSessionId(null);
+                seatStatus.setProcessStartTime(null);
+            } else {
+                movieSession.getOccupied().put(seatId, SeatStatus.builder().status(SOLD).build());
+            }
         });
+        movieSessionRepository.save(movieSession);
     }
 
     public boolean isCreditCardNumberValid(CreditCardInfo creditCardInfo) {
@@ -96,8 +100,8 @@ public class OrderService {
     public boolean isSeatAvailable(List<Integer> bookedSeatIndices, MovieSession movieSession, String clientSessionId) {
         for (Integer seatId : bookedSeatIndices) {
             SeatStatus seatStatus = movieSession.getOccupied().get(seatId);
-            if(seatStatus == null) {
-                return true;
+            if (seatStatus == null) {
+                continue;
             }
             String status = seatStatus.getStatus();
             if (status.equals(SOLD) || (status.equals(IN_PROCESS) && !seatStatus.getClientSessionId().equals(clientSessionId))) {
@@ -105,5 +109,37 @@ public class OrderService {
             }
         }
         return true;
+    }
+
+    public List<Order> getOrderHistoryByIdentity(Identity identity) {
+        return orderRepository.findAllByEmailAndCreditCardNumber(identity.getEmail(), identity.getCardNumber());
+    }
+
+    public Order updateSeat(List<Integer> seatIndices, String id) {
+        Order order = this.getById(id);
+        MovieSession movieSession = movieSessionRepository.findById(order.getMovieSessionId()).orElseThrow(MovieSessionNotFoundException::new);
+        if (movieSession.getStartTime() < System.currentTimeMillis()) {
+            throw new MovieSessionOverException();
+        }
+        seatIndices.forEach(seatIndex -> {
+            SeatStatus seatStatus = movieSession.getOccupied().get(seatIndex);
+            if (((seatStatus != null) && (seatStatus.getStatus().equals(IN_PROCESS))) ||
+                    (((seatStatus != null) && (seatStatus.getStatus().equals(SOLD))) && (!order.getBookedSeatIndices().contains(seatIndex)))) {
+                throw new UnavailableSeatException();
+            }
+        });
+        SeatStatus seatStatus = new SeatStatus();
+        seatStatus.setStatus(SOLD);
+        order.getBookedSeatIndices().forEach(bookedSeatIndex -> {
+            seatStatus.setClientSessionId(movieSession.getOccupied().get(bookedSeatIndex).getClientSessionId());
+            seatStatus.setProcessStartTime(movieSession.getOccupied().get(bookedSeatIndex).getProcessStartTime());
+            movieSession.getOccupied().remove(bookedSeatIndex);
+        });
+        seatIndices.forEach(seatIndex -> {
+            movieSession.getOccupied().put(seatIndex, seatStatus);
+        });
+        movieSessionRepository.save(movieSession);
+        order.setBookedSeatIndices(seatIndices);
+        return orderRepository.save(order);
     }
 }

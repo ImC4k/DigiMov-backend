@@ -3,7 +3,6 @@ package com.team_linne.digimov.service;
 import com.team_linne.digimov.dto.MovieSessionPatchRequest;
 import com.team_linne.digimov.exception.InvalidSeatUpdateOperationException;
 import com.team_linne.digimov.exception.MovieNotFoundException;
-import com.team_linne.digimov.model.House;
 import com.team_linne.digimov.model.Movie;
 import com.team_linne.digimov.model.MovieSession;
 import com.team_linne.digimov.model.SeatStatus;
@@ -97,10 +96,12 @@ public class MovieSessionServiceTest {
     }
 
     @Test
-    public void should_return_created_movie_session_when_create_movie_session_given_new_movie_session() {
+    public void should_ensure_movie_id_and_house_id_are_valid_and_return_created_movie_session_when_create_movie_session_given_new_movie_session() {
         //given
         MovieSession movieSession = new MovieSession("mov1", "111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
-        when(movieSessionRepository.insert(movieSession)).thenReturn(movieSession);
+        when(movieService.getById("mov1")).thenReturn(null);
+        when(houseService.getById("111")).thenReturn(null);
+        when(movieSessionRepository.save(movieSession)).thenReturn(movieSession);
 
         //when
         MovieSession actual = movieSessionService.create(movieSession);
