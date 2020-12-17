@@ -35,6 +35,8 @@ public class MovieSessionServiceTest {
     private MovieService movieService;
     @Mock
     private SeatStatusTimeoutService seatStatusTimeoutService;
+    @Mock
+    private OrderService orderService;
 
     @Test
     public void should_return_all_movie_session_when_get_all_given_list_of_movie_session() {
@@ -362,5 +364,18 @@ public class MovieSessionServiceTest {
 
         //then
         verify(movieSessionRepository, times(2)).deleteById(any());
+    }
+    @Test
+    void should_delete_order_when_delete_movie_session_given_order_with_movie_session_id() {
+        //given
+        MovieSession movieSession = new MovieSession();
+        movieSession.setId("1");
+        when(movieSessionRepository.findById(movieSession.getId())).thenReturn(Optional.of(movieSession));
+
+        //when
+        movieSessionService.delete(movieSession.getId());
+
+        //then
+        verify(orderService, times(1)).deleteOrderWithMovieSessionId("1");
     }
 }

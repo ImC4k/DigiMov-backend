@@ -2,16 +2,18 @@ package com.team_linne.digimov.service;
 
 import com.team_linne.digimov.exception.CinemaNotFoundException;
 import com.team_linne.digimov.model.Cinema;
+import com.team_linne.digimov.model.House;
+import com.team_linne.digimov.model.MovieSession;
 import com.team_linne.digimov.repository.CinemaRepository;
+import com.team_linne.digimov.repository.HouseRepository;
+import com.team_linne.digimov.repository.MovieSessionRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

@@ -1,9 +1,8 @@
 package com.team_linne.digimov.integration;
 
-import com.team_linne.digimov.model.Cinema;
-import com.team_linne.digimov.model.House;
-import com.team_linne.digimov.repository.CinemaRepository;
-import com.team_linne.digimov.repository.HouseRepository;
+import com.team_linne.digimov.dto.OrderResponse;
+import com.team_linne.digimov.model.*;
+import com.team_linne.digimov.repository.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +19,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class HouseIntegrationTest {
     @Autowired
-    MockMvc mockMvc;
-
+    private MockMvc mockMvc;
     @Autowired
-    HouseRepository houseRepository;
-
+    private HouseRepository houseRepository;
     @Autowired
-    CinemaRepository cinemaRepository;
+    private CinemaRepository cinemaRepository;
+    @Autowired
+    private MovieRepository movieRepository;
+    @Autowired
+    private MovieSessionRepository movieSessionRepository;
+    @Autowired
+    private OrderRepository orderRepository;
 
     @AfterEach
     void tearDown() {
@@ -144,7 +147,7 @@ public class HouseIntegrationTest {
                 "}";
 
         //when
-        mockMvc.perform(MockMvcRequestBuilders.put("/houses/"+house1.getId())
+        mockMvc.perform(MockMvcRequestBuilders.put("/houses/" + house1.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(houseAsJson))
                 .andExpect(status().isOk())
@@ -225,15 +228,23 @@ public class HouseIntegrationTest {
     }
 
     @Test
-    public void should_delete_house_when_delete_cinema_given_house_with_cinema_id() throws Exception {
+    public void should_delete_house_movie_session_and_order_when_delete_cinema_given_cinema_id() throws Exception {
         Cinema cinema = cinemaRepository.save(new Cinema());
         House house = houseRepository.save(new House(cinema.getId(), "house 1", 200));
-
+        Movie movie = movieRepository.save(new Movie());
+        MovieSession movieSession = movieSessionRepository.save(MovieSession.builder().movieId(movie.getId()).houseId(house.getId()).startTime(System.currentTimeMillis() + 100000).build());
+        Order order = orderRepository.save(Order.builder().movieSessionId(movieSession.getId()).build());
         //when
         mockMvc.perform(MockMvcRequestBuilders.delete("/cinemas/" + cinema.getId()));
 
         //then
+        mockMvc.perform(MockMvcRequestBuilders.get("/cinemas/" + cinema.getId()))
+                .andExpect(status().isNotFound());
         mockMvc.perform(MockMvcRequestBuilders.get("/houses/" + house.getId()))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(MockMvcRequestBuilders.get("/movie_sessions/" + movieSession.getId()))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(MockMvcRequestBuilders.get("/orders/" + order.getId()))
                 .andExpect(status().isNotFound());
     }
 }

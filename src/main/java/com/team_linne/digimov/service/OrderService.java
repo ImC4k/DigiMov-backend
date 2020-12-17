@@ -145,6 +145,6 @@ public class OrderService {
 
     public void deleteOrderWithMovieSessionId(String id) {
         List<Order> orders = orderRepository.findAllByMovieSessionId(id);
-        orders.forEach(order->this.delete(order.getId()));
+        orders.forEach(order -> this.delete(order.getId()));
     }
 }

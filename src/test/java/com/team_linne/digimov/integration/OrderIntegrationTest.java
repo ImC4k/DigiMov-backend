@@ -730,5 +730,21 @@ public class OrderIntegrationTest {
                 .content(orderAsJson))
                 .andExpect(status().isBadRequest());
     }
+    @Test
+    public void should_delete_order_when_delete_movie_session_given_order_with_movie_session_id() throws Exception {
+        Movie movie = movieRepository.save(new Movie());
+        House house = houseRepository.save(new House());
+        MovieSession movieSession = movieSessionRepository.save(MovieSession.builder().movieId(movie.getId()).houseId(house.getId()).startTime(System.currentTimeMillis() + 100000).build());
+        Order order = orderRepository.save(Order.builder().movieSessionId(movieSession.getId()).build());
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.delete("/movie_sessions/" + movieSession.getId()));
+
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.get("/movie_sessions/" + movieSession.getId()))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(MockMvcRequestBuilders.get("/orders/" + order.getId()))
+                .andExpect(status().isNotFound());
+    }
+
 
 }
