@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class MovieSessionService {
-    private static final String IN_PROCESS = "in process";
-    private static final String SOLD = "sold";
+    public static final String IN_PROCESS = "in process";
+    public static final String SOLD = "sold";
 
     @Autowired
     private MovieSessionRepository movieSessionRepository;
@@ -40,52 +40,72 @@ public class MovieSessionService {
     }
 
     public MovieSession create(MovieSession movieSession) {
-        return this.movieSessionRepository.insert(movieSession);
+        houseService.getById(movieSession.getHouseId());
+        movieService.getById(movieSession.getMovieId());
+        return this.movieSessionRepository.save(movieSession);
     }
 
     public MovieSession update(String id, MovieSession movieSessionUpdate) {
         MovieSession movieSession = this.getById(id);
         movieSessionUpdate.setId(movieSession.getId());
-        return this.movieSessionRepository.save(movieSessionUpdate);
+        return create(movieSessionUpdate);
     }
 
     public MovieSession patch(String id, MovieSessionPatchRequest movieSessionPatchRequest) {
         MovieSession movieSession = this.getById(id);
         Map<Integer, SeatStatus> occupied = movieSession.getOccupied();
-        movieSessionPatchRequest.getBookedSeatIndices().forEach(seatIndex -> {
-            if (occupied.containsKey(seatIndex) && occupied.get(seatIndex).getStatus().equals(SOLD)) {
-                throw new InvalidSeatUpdateOperationException();
-            }
-        });
 
-        Integer firstSeatIndex = movieSessionPatchRequest.getBookedSeatIndices().get(0);
-        String statusOfFirstSeatIndex = movieSession.getOccupied().containsKey(firstSeatIndex)? movieSession.getOccupied().get(firstSeatIndex).getStatus() : null;
-        movieSessionPatchRequest.getBookedSeatIndices().forEach(index -> {
-            if ((movieSession.getOccupied().containsKey(index) && !movieSession.getOccupied().get(index).getStatus().equals(statusOfFirstSeatIndex))) {
-                throw new InvalidSeatUpdateOperationException();
-            }
-            if (!movieSession.getOccupied().containsKey(index) && statusOfFirstSeatIndex != null) {
-                throw new InvalidSeatUpdateOperationException();
-            }
-        });
+        String statusOfFirstSeatIndex = getStatusOfFirstSeatIndex(movieSessionPatchRequest, movieSession);
+        verifyUniversalSeatStatus(movieSessionPatchRequest, movieSession, occupied, statusOfFirstSeatIndex);
 
-        if (statusOfFirstSeatIndex == null) {
-            movieSessionPatchRequest.getBookedSeatIndices().forEach(seatIndex -> {
-                SeatStatus seatStatus = new SeatStatus(IN_PROCESS, System.currentTimeMillis(), movieSessionPatchRequest.getClientSessionId());
-                occupied.put(seatIndex, seatStatus);
-                seatStatusTimeoutService.startSeatStatusCountdown(id, seatIndex);
-            });
+        if (shouldUpdateStatusToInProcess(statusOfFirstSeatIndex)) { // available
+            updateStatusToInProcess(id, movieSessionPatchRequest, occupied);
         }
         else {
-            movieSessionPatchRequest.getBookedSeatIndices().forEach(index -> {
-                if (!movieSession.getOccupied().get(index).getClientSessionId().equals(movieSessionPatchRequest.getClientSessionId())) {
-                    throw new UnauthorizedSeatUpdateOperationException();
-                }
-            });
-            movieSessionPatchRequest.getBookedSeatIndices().forEach(occupied::remove);
+            updateStatusToAvailable(movieSessionPatchRequest, movieSession, occupied);
         }
         movieSession.setOccupied(occupied);
         return this.update(movieSession.getId(), movieSession);
+    }
+
+    private String getStatusOfFirstSeatIndex(MovieSessionPatchRequest movieSessionPatchRequest, MovieSession movieSession) {
+        Integer firstSeatIndex = movieSessionPatchRequest.getBookedSeatIndices().get(0);
+        return movieSession.getOccupied().containsKey(movieSessionPatchRequest.getBookedSeatIndices().get(0)) ? movieSession.getOccupied().get(firstSeatIndex).getStatus() : null;
+    }
+
+    private void updateStatusToAvailable(MovieSessionPatchRequest movieSessionPatchRequest, MovieSession movieSession, Map<Integer, SeatStatus> occupied) {
+        movieSessionPatchRequest.getBookedSeatIndices().forEach(index -> {
+            if (!movieSession.getOccupied().get(index).getClientSessionId().equals(movieSessionPatchRequest.getClientSessionId())) {
+                throw new UnauthorizedSeatUpdateOperationException();
+            }
+        });
+        movieSessionPatchRequest.getBookedSeatIndices().forEach(occupied::remove);
+    }
+
+    private void updateStatusToInProcess(String id, MovieSessionPatchRequest movieSessionPatchRequest, Map<Integer, SeatStatus> occupied) {
+        movieSessionPatchRequest.getBookedSeatIndices().forEach(seatIndex -> {
+            SeatStatus seatStatus = new SeatStatus(IN_PROCESS, System.currentTimeMillis(), movieSessionPatchRequest.getClientSessionId());
+            occupied.put(seatIndex, seatStatus);
+            seatStatusTimeoutService.startSeatStatusCountdown(id, seatIndex);
+        });
+    }
+
+    private boolean shouldUpdateStatusToInProcess(String statusOfFirstSeatIndex) {
+        return statusOfFirstSeatIndex == null;
+    }
+
+    private void verifyUniversalSeatStatus(MovieSessionPatchRequest movieSessionPatchRequest, MovieSession movieSession, Map<Integer, SeatStatus> occupied, String statusOfFirstSeatIndex) {
+        movieSessionPatchRequest.getBookedSeatIndices().forEach(index -> {
+            if (occupied.containsKey(index) && occupied.get(index).getStatus().equals(SOLD)) {
+                throw new InvalidSeatUpdateOperationException();
+            }
+            if ((occupied.containsKey(index) && !movieSession.getOccupied().get(index).getStatus().equals(statusOfFirstSeatIndex))) {
+                throw new InvalidSeatUpdateOperationException();
+            }
+            if (!occupied.containsKey(index) && statusOfFirstSeatIndex != null) {
+                throw new InvalidSeatUpdateOperationException();
+            }
+        });
     }
 
     public void delete(String id) {
