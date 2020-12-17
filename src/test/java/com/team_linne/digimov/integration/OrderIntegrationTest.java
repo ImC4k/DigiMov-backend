@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.mongodb.internal.connection.tlschannel.util.Util.assertTrue;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -552,5 +553,80 @@ public class OrderIntegrationTest {
     public void should_return_404_not_found_when_delete_order_given_invalid_order_id() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.delete("/orders/5fc8913234ba53396c26a860"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void should_return_order_history_when_view_order_history_given_email_and_credit_card_number() throws Exception {
+        ExpiryDate expiryDate = new ExpiryDate("4", "2043");
+        CreditCardInfo creditCardInfo1 = new CreditCardInfo("5105105105105100", expiryDate, 406, "Jackie");
+        CreditCardInfo creditCardInfo2 = new CreditCardInfo("5105105105105101", expiryDate, 406, "Jackie");
+        String clientSessionId = "123456";
+        Map<String, Double> prices = new HashMap<>();
+        prices.put("Adult", 100D);
+        prices.put("Student", 60D);
+        SeatStatus seatStatus = new SeatStatus(IN_PROCESS, 1000L, "123456");
+        Map<Integer, SeatStatus> occupied = new HashMap<>();
+        occupied.put(14, seatStatus);
+        occupied.put(15, seatStatus);
+        occupied.put(16, seatStatus);
+        occupied.put(17, seatStatus);
+        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, prices, occupied);
+        Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
+        customerGroupQuantityMap.put("Adult", 2);
+        customerGroupQuantityMap.put("Student", 1);
+        movieSessionRepository.save(movieSession1);
+        Order order1 = new Order("abc@bbc.com", movieSession1.getId(), Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
+        Order order2 = new Order("abc@bbc.com", movieSession1.getId(), Arrays.asList(16, 17), customerGroupQuantityMap, "5105105105105101");
+        orderService.create(order1, creditCardInfo1, clientSessionId);
+        orderService.create(order2, creditCardInfo2, clientSessionId);
+        String identityAsJson = "{\n" +
+                "    \"email\": \"abc@bbc.com\",\n" +
+                "    \"cardNumber\": \"5105105105105100\"\n" +
+                "}";
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/orders/history").contentType(MediaType.APPLICATION_JSON).content(identityAsJson))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*", hasSize(1)))
+                .andExpect(jsonPath("$[0].id").isString())
+                .andExpect(jsonPath("$[0].email").value("abc@bbc.com"))
+                .andExpect(jsonPath("$[0].bookedSeatIndices[0]").value("14"))
+                .andExpect(jsonPath("$[0].bookedSeatIndices[1]").value("15"))
+                .andExpect(jsonPath("$[0].customerGroupQuantityMap", Matchers.hasKey("Adult")))
+                .andExpect(jsonPath("$[0].customerGroupQuantityMap", Matchers.hasKey("Student")))
+                .andExpect(jsonPath("$[0].creditCardNumber").value("5105105105105100"))
+                .andExpect(jsonPath("$[0].movieSession").isNotEmpty());
+    }
+    @Test
+    public void should_null_when_view_order_history_given_email_and_credit_card_number_and_no_matching_order() throws Exception {
+        ExpiryDate expiryDate = new ExpiryDate("4", "2043");
+        CreditCardInfo creditCardInfo1 = new CreditCardInfo("5105105105105100", expiryDate, 406, "Jackie");
+        CreditCardInfo creditCardInfo2 = new CreditCardInfo("5105105105105101", expiryDate, 406, "Jackie");
+        String clientSessionId = "123456";
+        Map<String, Double> prices = new HashMap<>();
+        prices.put("Adult", 100D);
+        prices.put("Student", 60D);
+        SeatStatus seatStatus = new SeatStatus(IN_PROCESS, 1000L, "123456");
+        Map<Integer, SeatStatus> occupied = new HashMap<>();
+        occupied.put(14, seatStatus);
+        occupied.put(15, seatStatus);
+        occupied.put(16, seatStatus);
+        occupied.put(17, seatStatus);
+        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, prices, occupied);
+        Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
+        customerGroupQuantityMap.put("Adult", 2);
+        customerGroupQuantityMap.put("Student", 1);
+        movieSessionRepository.save(movieSession1);
+        Order order1 = new Order("abc@bbc.com", movieSession1.getId(), Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
+        Order order2 = new Order("abc@bbc.com", movieSession1.getId(), Arrays.asList(16, 17), customerGroupQuantityMap, "5105105105105101");
+        orderService.create(order1, creditCardInfo1, clientSessionId);
+        orderService.create(order2, creditCardInfo2, clientSessionId);
+        String identityAsJson = "{\n" +
+                "    \"email\": \"abc@bbc.com\",\n" +
+                "    \"cardNumber\": \"5105105105105102\"\n" +
+                "}";
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/orders/history").contentType(MediaType.APPLICATION_JSON).content(identityAsJson))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*", hasSize(0)));
     }
 }

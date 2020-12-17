@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface OrderRepository extends MongoRepository<Order, String> {
-    List<Order> findAllByEmailAndCreditcardnumber(String email, String creditCardNumber);
+    List<Order> findAllByEmailAndCreditCardNumber(String email, String creditCardNumber);
 }

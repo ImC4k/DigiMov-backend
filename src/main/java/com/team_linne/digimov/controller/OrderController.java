@@ -67,8 +67,9 @@ public class OrderController {
         MovieSession movieSession = movieSessionService.getById(order.getMovieSessionId());
         return orderMapper.toResponse(order, movieSessionMapper.toResponse(movieSession));
     }
+
     @PostMapping("/history")
-    public List<OrderResponse> viewOrderHistory(@RequestBody Identity identity){
+    public List<OrderResponse> viewOrderHistory(@RequestBody Identity identity) {
         return orderService.getOrderHistoryByIdentity(identity).
                 stream().map(this::getOrderResponse).collect(Collectors.toList());
 

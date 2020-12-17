@@ -1,5 +1,8 @@
 package com.team_linne.digimov.model;
 
+import lombok.Data;
+
+@Data
 public class Identity {
     private String email;
     private String cardNumber;

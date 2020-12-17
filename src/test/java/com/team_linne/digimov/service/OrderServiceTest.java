@@ -340,5 +340,23 @@ public class OrderServiceTest {
             orderService.update("999", order, creditCardInfo, clientSessionId);
         }, "Order not found");
     }
+    @Test
+    void should_return_list_of_order_when_get_oder_history_given_email_and_creditcardnumber() {
+        //given
+        Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
+        customerGroupQuantityMap.put("Adults", 2);
+        customerGroupQuantityMap.put("Student", 1);
+        Order order = new Order("abc@bbc.com", "32", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
+        List<Order> orderList = new ArrayList<>();
+        orderList.add(order);
+        when(orderRepository.findAllByEmailAndCreditCardNumber(any(),any())).thenReturn(orderList);
+
+        //when
+        final List<Order> actual = orderService.getOrderHistoryByIdentity(new Identity("abc@bbc.com","5105105105105100"));
+
+        //then
+        assertEquals(orderList, actual);
+    }
+
 
 }

@@ -1,6 +1,4 @@
 package com.team_linne.digimov.service;
-
-import com.sun.xml.internal.stream.Entity;
 import com.team_linne.digimov.exception.*;
 import com.team_linne.digimov.model.*;
 import com.team_linne.digimov.repository.MovieSessionRepository;
@@ -58,8 +56,8 @@ public class OrderService {
     public Order update(String id, Order orderUpdate, CreditCardInfo creditCardInfo, String clientSessionId) {
         Order order = this.getById(id);
         MovieSession movieSession = movieSessionRepository.findById(order.getMovieSessionId()).orElseThrow(MovieSessionNotFoundException::new);
-        Map<Integer,SeatStatus> occupied = movieSession.getOccupied();
-        order.getBookedSeatIndices().forEach(seatId->{
+        Map<Integer, SeatStatus> occupied = movieSession.getOccupied();
+        order.getBookedSeatIndices().forEach(seatId -> {
             occupied.remove(seatId);
         });
         movieSession.setOccupied(occupied);
@@ -94,7 +92,7 @@ public class OrderService {
     public boolean isSeatAvailable(List<Integer> bookedSeatIndices, MovieSession movieSession, String clientSessionId) {
         for (Integer seatId : bookedSeatIndices) {
             SeatStatus seatStatus = movieSession.getOccupied().get(seatId);
-            if(seatStatus == null) {
+            if (seatStatus == null) {
                 return true;
             }
             String status = seatStatus.getStatus();
@@ -106,6 +104,6 @@ public class OrderService {
     }
 
     public List<Order> getOrderHistoryByIdentity(Identity identity) {
-        return orderRepository.findAllByEmailAndCreditcardnumber(identity.getEmail(),identity.getCardNumber());
+        return orderRepository.findAllByEmailAndCreditCardNumber(identity.getEmail(), identity.getCardNumber());
     }
 }
