@@ -71,10 +71,15 @@ public class OrderService {
 
     private void updateSeatStatus(Order order, MovieSession movieSession) {
         order.getBookedSeatIndices().forEach(seatId -> {
-            SeatStatus seatStatus = movieSession.getOccupied().get(seatId);
-            seatStatus.setStatus(SOLD);
-            seatStatus.setClientSessionId(null);
-            seatStatus.setProcessStartTime(null);
+            if (movieSession.getOccupied().containsKey(seatId)) {
+                SeatStatus seatStatus = movieSession.getOccupied().get(seatId);
+                seatStatus.setStatus(SOLD);
+                seatStatus.setClientSessionId(null);
+                seatStatus.setProcessStartTime(null);
+            }
+            else {
+                movieSession.getOccupied().put(seatId, SeatStatus.builder().status(SOLD).build());
+            }
         });
         movieSessionRepository.save(movieSession);
     }
