@@ -13,6 +13,9 @@ public class CinemaService {
     @Autowired
     CinemaRepository cinemaRepository;
 
+    @Autowired
+    HouseService houseService;
+
     public List<Cinema> getAll() {
         return cinemaRepository.findAll();
     }
@@ -34,5 +37,8 @@ public class CinemaService {
     public void delete(String id) {
         Cinema cinema = this.getById(id);
         cinemaRepository.deleteById(cinema.getId());
+        if (houseService != null) {
+            houseService.deleteHouseWithCinemaId(id);
+        }
     }
 }

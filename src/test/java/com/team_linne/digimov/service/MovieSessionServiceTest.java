@@ -35,6 +35,8 @@ public class MovieSessionServiceTest {
     private MovieService movieService;
     @Mock
     private SeatStatusTimeoutService seatStatusTimeoutService;
+    @Mock
+    private OrderService orderService;
 
     @Test
     public void should_return_all_movie_session_when_get_all_given_list_of_movie_session() {
@@ -347,4 +349,33 @@ public class MovieSessionServiceTest {
         verify(movieSessionRepository, times(1)).findAllByMovieId("movieId");
     }
 
+    @Test
+    void should_delete_twice_when_delete_house_id_given_2_movie_sessions_originally_contained_house_id() {
+        //given
+        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        MovieSession movieSession2 = new MovieSession("mov2", "222", 10000L, new HashMap<String, Double>(), new HashMap<Integer, SeatStatus>());
+        when(movieSessionRepository.findAllByHouseIdIn(any())).thenReturn(Stream.of(movieSession1, movieSession2).collect(Collectors.toList()));
+        movieSession1.setId("1");
+        movieSession2.setId("2");
+        when(movieSessionRepository.findById(movieSession1.getId())).thenReturn(Optional.of(movieSession1));
+        when(movieSessionRepository.findById(movieSession2.getId())).thenReturn(Optional.of(movieSession2));
+        //when
+        movieSessionService.deleteMovieSessionWithHouseId("1");
+
+        //then
+        verify(movieSessionRepository, times(2)).deleteById(any());
+    }
+    @Test
+    void should_delete_order_when_delete_movie_session_given_order_with_movie_session_id() {
+        //given
+        MovieSession movieSession = new MovieSession();
+        movieSession.setId("1");
+        when(movieSessionRepository.findById(movieSession.getId())).thenReturn(Optional.of(movieSession));
+
+        //when
+        movieSessionService.delete(movieSession.getId());
+
+        //then
+        verify(orderService, times(1)).deleteOrderWithMovieSessionId("1");
+    }
 }

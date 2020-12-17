@@ -2,10 +2,7 @@ package com.team_linne.digimov.integration;
 
 import com.team_linne.digimov.dto.MovieSessionPatchRequest;
 import com.team_linne.digimov.model.*;
-import com.team_linne.digimov.repository.CinemaRepository;
-import com.team_linne.digimov.repository.HouseRepository;
-import com.team_linne.digimov.repository.MovieRepository;
-import com.team_linne.digimov.repository.MovieSessionRepository;
+import com.team_linne.digimov.repository.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +34,8 @@ public class MovieSessionIntegrationTest {
     private HouseRepository houseRepository;
     @Autowired
     private MovieRepository movieRepository;
-
+    @Autowired
+    private OrderRepository orderRepository;
     @AfterEach
     void tearDown() {
         movieSessionRepository.deleteAll();
@@ -652,6 +650,24 @@ public class MovieSessionIntegrationTest {
         //when
         //then
         mockMvc.perform(MockMvcRequestBuilders.get("/movie_sessions?movie=" + "5fc8913234ba53396c26a863" + "&sessionStatus=upcoming"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void should_delete_movie_session_and_order_when_delete_house_given_movie_session_with_house_id() throws Exception {
+        House house = houseRepository.save(new House());
+        Movie movie = movieRepository.save(new Movie());
+        MovieSession movieSession = movieSessionRepository.save(MovieSession.builder().movieId(movie.getId()).houseId(house.getId()).startTime(System.currentTimeMillis() + 100000).build());
+        Order order = orderRepository.save(Order.builder().movieSessionId(movieSession.getId()).build());
+        //when
+        mockMvc.perform(MockMvcRequestBuilders.delete("/houses/" + house.getId()));
+
+        //then
+        mockMvc.perform(MockMvcRequestBuilders.get("/houses/" + house.getId()))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(MockMvcRequestBuilders.get("/movie_sessions/" + movieSession.getId()))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(MockMvcRequestBuilders.get("/orders/" + order.getId()))
                 .andExpect(status().isNotFound());
     }
 }
