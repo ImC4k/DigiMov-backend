@@ -1,4 +1,6 @@
 package com.team_linne.digimov.service;
+
+import com.team_linne.digimov.dto.OrderResponse;
 import com.team_linne.digimov.exception.*;
 import com.team_linne.digimov.model.*;
 import com.team_linne.digimov.repository.MovieSessionRepository;
@@ -105,5 +107,29 @@ public class OrderService {
 
     public List<Order> getOrderHistoryByIdentity(Identity identity) {
         return orderRepository.findAllByEmailAndCreditCardNumber(identity.getEmail(), identity.getCardNumber());
+    }
+
+    public Order updateSeat(List<Integer> seatIndices, String id) {
+        Order order = this.getById(id);
+        MovieSession movieSession = movieSessionRepository.findById(order.getMovieSessionId()).orElseThrow(MovieSessionNotFoundException::new);
+        seatIndices.forEach(seatIndex->{
+            SeatStatus seatStatus = movieSession.getOccupied().get(seatIndex);
+            if ((seatStatus!=null)&&(seatStatus.getStatus().equals(IN_PROCESS))){
+                throw new UnavailableSeatException();
+            }
+        });
+        SeatStatus seatStatus= new SeatStatus();
+        seatStatus.setStatus(SOLD);
+        order.getBookedSeatIndices().forEach(bookedSeatIndex-> {
+            seatStatus.setClientSessionId(movieSession.getOccupied().get(bookedSeatIndex).getClientSessionId());
+            seatStatus.setProcessStartTime(movieSession.getOccupied().get(bookedSeatIndex).getProcessStartTime());
+            movieSession.getOccupied().remove(bookedSeatIndex);
+        });
+        seatIndices.forEach(seatIndex->{
+            movieSession.getOccupied().put(seatIndex,seatStatus);
+        });
+        movieSessionRepository.save(movieSession);
+        order.setBookedSeatIndices(seatIndices);
+        return orderRepository.save(order);
     }
 }

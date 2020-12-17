@@ -1,7 +1,5 @@
 package com.team_linne.digimov.model;
 
-import java.util.UUID;
-
 public class SeatStatus {
     private String status;
     private Long processStartTime;

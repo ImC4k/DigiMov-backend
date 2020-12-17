@@ -105,4 +105,8 @@ public class OrderController {
                 stream().map(this::getOrderResponse).collect(Collectors.toList());
 
     }
+    @PatchMapping("/{id}")
+    public OrderResponse editSeatPosition(@RequestBody List<Integer> seatIndices, @PathVariable String id){
+        return getOrderResponse(orderService.updateSeat(seatIndices, id));
+    }
 }
