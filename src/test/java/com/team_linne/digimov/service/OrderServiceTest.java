@@ -248,7 +248,7 @@ public class OrderServiceTest {
         movieSession1.setId("1");
         Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
         customerGroupQuantityMap.put("Adult", 2);
-        Order order = new Order("abc@bbc.com", "1", Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100");
+        Order order = new Order("abc@bbc.com", "1", Arrays.asList(13, 14, 15), customerGroupQuantityMap, "5105105105105100");
         when(movieSessionRepository.findById("1")).thenReturn(Optional.of(movieSession1));
         //when
         //then

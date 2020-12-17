@@ -93,7 +93,7 @@ public class OrderService {
         for (Integer seatId : bookedSeatIndices) {
             SeatStatus seatStatus = movieSession.getOccupied().get(seatId);
             if (seatStatus == null) {
-                return true;
+                continue;
             }
             String status = seatStatus.getStatus();
             if (status.equals(SOLD) || (status.equals(IN_PROCESS) && !seatStatus.getClientSessionId().equals(clientSessionId))) {
