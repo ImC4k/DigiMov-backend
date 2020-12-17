@@ -40,13 +40,15 @@ public class MovieSessionService {
     }
 
     public MovieSession create(MovieSession movieSession) {
-        return this.movieSessionRepository.insert(movieSession);
+        houseService.getById(movieSession.getHouseId());
+        movieService.getById(movieSession.getMovieId());
+        return this.movieSessionRepository.save(movieSession);
     }
 
     public MovieSession update(String id, MovieSession movieSessionUpdate) {
         MovieSession movieSession = this.getById(id);
         movieSessionUpdate.setId(movieSession.getId());
-        return this.movieSessionRepository.save(movieSessionUpdate);
+        return create(movieSessionUpdate);
     }
 
     public MovieSession patch(String id, MovieSessionPatchRequest movieSessionPatchRequest) {
