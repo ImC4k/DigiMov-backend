@@ -3,7 +3,6 @@ package com.team_linne.digimov.service;
 import com.team_linne.digimov.dto.MovieSessionPatchRequest;
 import com.team_linne.digimov.exception.InvalidSeatUpdateOperationException;
 import com.team_linne.digimov.exception.MovieNotFoundException;
-import com.team_linne.digimov.model.House;
 import com.team_linne.digimov.model.Movie;
 import com.team_linne.digimov.model.MovieSession;
 import com.team_linne.digimov.model.SeatStatus;
