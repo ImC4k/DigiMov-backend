@@ -372,7 +372,7 @@ public class OrderServiceTest {
         Map<Integer, SeatStatus> occupied = new HashMap<>();
         occupied.put(14, seatStatus);
         occupied.put(15, seatStatus);
-        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, prices, occupied);
+        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000000000000L, prices, occupied);
         movieSession1.setId("1");
         Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
         customerGroupQuantityMap.put("Adult", 2);
@@ -384,7 +384,7 @@ public class OrderServiceTest {
         occupied2.put(20, seatStatus);
         Order order2 = new Order("abc@bbc.com", "1", Arrays.asList(19, 20), customerGroupQuantityMap, "5105105105105100");
         order2.setId("1");
-        MovieSession movieSession2 = new MovieSession("mov1", "111", 10000L, prices, occupied2);
+        MovieSession movieSession2 = new MovieSession("mov1", "111", 10000000000000L, prices, occupied2);
         when(orderRepository.findById("1")).thenReturn(Optional.of(order));
         when(orderRepository.save(any(Order.class))).thenReturn(order2);
         when(movieSessionRepository.findById("1")).thenReturn(Optional.of(movieSession1));
@@ -414,7 +414,7 @@ public class OrderServiceTest {
         occupied.put(15, seatStatus1);
         occupied.put(19, seatStatus1);
         occupied.put(20, seatStatus2);
-        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000L, prices, occupied);
+        MovieSession movieSession1 = new MovieSession("mov1", "111", 10000000000000L, prices, occupied);
         movieSession1.setId("1");
         Map<String, Integer> customerGroupQuantityMap = new HashMap<>();
         customerGroupQuantityMap.put("Adult", 2);

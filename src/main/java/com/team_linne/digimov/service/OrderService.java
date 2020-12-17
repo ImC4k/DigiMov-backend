@@ -76,8 +76,7 @@ public class OrderService {
                 seatStatus.setStatus(SOLD);
                 seatStatus.setClientSessionId(null);
                 seatStatus.setProcessStartTime(null);
-            }
-            else {
+            } else {
                 movieSession.getOccupied().put(seatId, SeatStatus.builder().status(SOLD).build());
             }
         });
@@ -119,21 +118,25 @@ public class OrderService {
     public Order updateSeat(List<Integer> seatIndices, String id) {
         Order order = this.getById(id);
         MovieSession movieSession = movieSessionRepository.findById(order.getMovieSessionId()).orElseThrow(MovieSessionNotFoundException::new);
-        seatIndices.forEach(seatIndex->{
+        if (movieSession.getStartTime() < System.currentTimeMillis()) {
+            throw new MovieSessionOverException();
+        }
+        seatIndices.forEach(seatIndex -> {
             SeatStatus seatStatus = movieSession.getOccupied().get(seatIndex);
-            if ((seatStatus!=null)&&(seatStatus.getStatus().equals(IN_PROCESS))){
+            if (((seatStatus != null) && (seatStatus.getStatus().equals(IN_PROCESS))) ||
+                    (((seatStatus != null) && (seatStatus.getStatus().equals(SOLD))) && (!order.getBookedSeatIndices().contains(seatIndex)))) {
                 throw new UnavailableSeatException();
             }
         });
-        SeatStatus seatStatus= new SeatStatus();
+        SeatStatus seatStatus = new SeatStatus();
         seatStatus.setStatus(SOLD);
-        order.getBookedSeatIndices().forEach(bookedSeatIndex-> {
+        order.getBookedSeatIndices().forEach(bookedSeatIndex -> {
             seatStatus.setClientSessionId(movieSession.getOccupied().get(bookedSeatIndex).getClientSessionId());
             seatStatus.setProcessStartTime(movieSession.getOccupied().get(bookedSeatIndex).getProcessStartTime());
             movieSession.getOccupied().remove(bookedSeatIndex);
         });
-        seatIndices.forEach(seatIndex->{
-            movieSession.getOccupied().put(seatIndex,seatStatus);
+        seatIndices.forEach(seatIndex -> {
+            movieSession.getOccupied().put(seatIndex, seatStatus);
         });
         movieSessionRepository.save(movieSession);
         order.setBookedSeatIndices(seatIndices);

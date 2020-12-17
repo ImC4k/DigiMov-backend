@@ -680,7 +680,7 @@ public class OrderIntegrationTest {
         Movie movie = movieRepository.save(new Movie());
         Cinema cinema = cinemaRepository.save(new Cinema());
         House house = houseRepository.save(House.builder().cinemaId(cinema.getId()).build());
-        MovieSession movieSession = movieSessionRepository.save(new MovieSession(movie.getId(), house.getId(), 10000L, prices, occupied));
+        MovieSession movieSession = movieSessionRepository.save(new MovieSession(movie.getId(), house.getId(), 10000000000000L, prices, occupied));
         Order order2 = orderService.create(new Order("abc@bbc.com", movieSession.getId(), Arrays.asList(14, 15), customerGroupQuantityMap, "5105105105105100"), creditCardInfo, clientSessionId);
         String orderAsJson = "[19,21]";
         mockMvc.perform(MockMvcRequestBuilders.patch("/orders/" + order2.getId())
