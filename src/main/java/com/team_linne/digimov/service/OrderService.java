@@ -52,6 +52,7 @@ public class OrderService {
             }
         });
         updateSeatStatus(order, movieSession);
+
         return orderRepository.save(order);
     }
 
@@ -75,6 +76,7 @@ public class OrderService {
             seatStatus.setClientSessionId(null);
             seatStatus.setProcessStartTime(null);
         });
+        movieSessionRepository.save(movieSession);
     }
 
     public boolean isCreditCardNumberValid(CreditCardInfo creditCardInfo) {
