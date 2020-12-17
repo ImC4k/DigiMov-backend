@@ -14,6 +14,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -31,6 +33,9 @@ public class HouseServiceTest {
     private CinemaRepository cinemaRepository;
     @Mock
     private CinemaService cinemaService;
+
+    @Mock
+    private MovieSessionService movieSessionService;
 
     @Test
     void should_return_all_houses_when_get_all_given_list_of_houses() {
@@ -156,6 +161,23 @@ public class HouseServiceTest {
     }
 
     @Test
+    void should_delete_twice_when_delete_cinema_id_given_2_houses_originally_contained_cinema_id() {
+        //given
+        House house1 = new House("1", "house 1", 200);
+        House house2 = new House("1", "house 2", 300);
+        when(houseRepository.findAllByCinemaId(any())).thenReturn(Stream.of(house1, house2).collect(Collectors.toList()));
+        house1.setId("1");
+        house2.setId("2");
+        when(houseRepository.findById(house1.getId())).thenReturn(Optional.of(house1));
+        when(houseRepository.findById(house2.getId())).thenReturn(Optional.of(house2));
+        //when
+        houseService.deleteHouseWithCinemaId("1");
+
+        //then
+        verify(houseRepository, times(2)).deleteById(any());
+    }
+
+    @Test
     void should_call_cinema_get_by_id_and_repository_save_when_get_all_by_cinema_id_given_cinema_id_valid() {
         //given
         Cinema cinema = new Cinema();
@@ -168,5 +190,19 @@ public class HouseServiceTest {
         //then
         verify(cinemaService, times(1)).getById("1");
         verify(houseRepository, times(1)).findAllByCinemaId("1");
+    }
+
+    @Test
+    void should_delete_movie_session_when_delete_house_given_movie_session_with_house_id() {
+        //given
+        House house = new House();
+        house.setId("1");
+        when(houseRepository.findById(house.getId())).thenReturn(Optional.of(house));
+
+        //when
+        houseService.delete(house.getId());
+
+        //then
+        verify(movieSessionService, times(1)).deleteMovieSessionWithHouseId("1");
     }
 }

@@ -142,4 +142,9 @@ public class OrderService {
         order.setBookedSeatIndices(seatIndices);
         return orderRepository.save(order);
     }
+
+    public void deleteOrderWithMovieSessionId(String id) {
+        List<Order> orders = orderRepository.findAllByMovieSessionId(id);
+        orders.forEach(order -> this.delete(order.getId()));
+    }
 }

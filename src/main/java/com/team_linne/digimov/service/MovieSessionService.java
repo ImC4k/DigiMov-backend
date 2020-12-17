@@ -11,6 +11,7 @@ import com.team_linne.digimov.repository.MovieSessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -30,6 +31,8 @@ public class MovieSessionService {
     private MovieService movieService;
     @Autowired
     private HouseService houseService;
+    @Autowired
+    private OrderService orderService;
 
     public List<MovieSession> getAll() {
         return this.movieSessionRepository.findAll();
@@ -115,6 +118,9 @@ public class MovieSessionService {
     public void delete(String id) {
         MovieSession movieSession = this.getById(id);
         this.movieSessionRepository.deleteById(movieSession.getId());
+        if (orderService != null) {
+            orderService.deleteOrderWithMovieSessionId(id);
+        }
     }
 
     public List<MovieSession> getUpcomingMovieSessionsByCinemaId(String cinemaId) {
@@ -135,5 +141,10 @@ public class MovieSessionService {
     public List<MovieSession> getAllByMovieId(String movieId) {
         movieService.getById(movieId);
         return movieSessionRepository.findAllByMovieId(movieId);
+    }
+
+    public void deleteMovieSessionWithHouseId(String houseId) {
+        List<MovieSession> movieSessionWithHouseId = movieSessionRepository.findAllByHouseIdIn(Collections.singletonList(houseId));
+        movieSessionWithHouseId.forEach(movieSession -> this.delete(movieSession.getId()));
     }
 }
